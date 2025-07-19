@@ -1,0 +1,257 @@
+{
+  "version": "1.0.0",
+  "images": [
+    {
+      "id": 1,
+      "title": "Friendly & Approachable",
+      "description": "Warm, welcoming design with soft elements and friendly messaging",
+      "visual_hints": "Staff smiling photos, hand-drawn icons, soft rounded corners, warm expressions",
+      "path": "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 1,
+        "cool_score": 0,
+        "mono_score": 0,
+        "vivid_score": 0,
+        "friendly_score": 1,
+        "professional_score": 0,
+        "creative_score": 0,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 1
+      }
+    },
+    {
+      "id": 2,
+      "title": "Professional & Trustworthy",
+      "description": "Clean, corporate design with emphasis on credibility and expertise",
+      "visual_hints": "Suited professionals, data graphs, angular design, logical structure",
+      "path": "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 1,
+        "mono_score": 0,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 1,
+        "creative_score": 0,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 1,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Creative & Innovative",
+      "description": "Bold, artistic design with unique layouts and creative elements",
+      "visual_hints": "Abstract art, unconventional layouts, creative typography, artistic elements",
+      "path": "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 0,
+        "mono_score": 0,
+        "vivid_score": 1,
+        "friendly_score": 0,
+        "professional_score": 0,
+        "creative_score": 1,
+        "minimal_score": 0,
+        "energetic_score": 1,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Minimal & Clean",
+      "description": "Simplified design with lots of white space and clean lines",
+      "visual_hints": "Minimal elements, clean typography, white space, simple layouts",
+      "path": "https://images.pexels.com/photos/3184287/pexels-photo-3184287.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 1,
+        "mono_score": 1,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 1,
+        "creative_score": 0,
+        "minimal_score": 1,
+        "energetic_score": 0,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "Energetic & Dynamic",
+      "description": "High-energy design with vibrant colors and dynamic elements",
+      "visual_hints": "Bright colors, action shots, dynamic layouts, energetic messaging",
+      "path": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 1,
+        "cool_score": 0,
+        "mono_score": 0,
+        "vivid_score": 1,
+        "friendly_score": 0,
+        "professional_score": 0,
+        "creative_score": 0,
+        "minimal_score": 0,
+        "energetic_score": 1,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 6,
+      "title": "Luxurious & Premium",
+      "description": "High-end, sophisticated design with premium materials and finishes",
+      "visual_hints": "Gold accents, premium materials, sophisticated layouts, luxury branding",
+      "path": "https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 0,
+        "mono_score": 1,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 1,
+        "creative_score": 0,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 1,
+        "luxurious_score": 1,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 7,
+      "title": "Warm & Inviting",
+      "description": "Cozy, comfortable design with warm colors and inviting elements",
+      "visual_hints": "Warm lighting, comfortable spaces, earth tones, inviting atmosphere",
+      "path": "https://images.pexels.com/photos/3184350/pexels-photo-3184350.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 1,
+        "cool_score": 0,
+        "mono_score": 0,
+        "vivid_score": 0,
+        "friendly_score": 1,
+        "professional_score": 0,
+        "creative_score": 0,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 1
+      }
+    },
+    {
+      "id": 8,
+      "title": "Cool & Modern",
+      "description": "Contemporary design with cool colors and modern aesthetics",
+      "visual_hints": "Cool blues, modern architecture, sleek designs, contemporary feel",
+      "path": "https://images.pexels.com/photos/3184317/pexels-photo-3184317.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 1,
+        "mono_score": 0,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 1,
+        "creative_score": 1,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 9,
+      "title": "Monochrome & Elegant",
+      "description": "Black and white design with elegant typography and sophisticated layout",
+      "visual_hints": "Black and white photography, elegant typography, sophisticated layouts",
+      "path": "https://images.pexels.com/photos/3184328/pexels-photo-3184328.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 0,
+        "mono_score": 1,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 1,
+        "creative_score": 0,
+        "minimal_score": 1,
+        "energetic_score": 0,
+        "trustworthy_score": 1,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 10,
+      "title": "Vibrant & Colorful",
+      "description": "Bold, colorful design with vibrant hues and playful elements",
+      "visual_hints": "Bright colors, playful elements, vibrant photography, colorful graphics",
+      "path": "https://images.pexels.com/photos/3184405/pexels-photo-3184405.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 0,
+        "mono_score": 0,
+        "vivid_score": 1,
+        "friendly_score": 1,
+        "professional_score": 0,
+        "creative_score": 1,
+        "minimal_score": 0,
+        "energetic_score": 1,
+        "trustworthy_score": 0,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 11,
+      "title": "Tech & Innovative",
+      "description": "High-tech design with digital elements and innovative features",
+      "visual_hints": "Digital interfaces, tech elements, innovative layouts, futuristic design",
+      "path": "https://images.pexels.com/photos/3184421/pexels-photo-3184421.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 0,
+        "cool_score": 1,
+        "mono_score": 0,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 1,
+        "creative_score": 1,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 1,
+        "luxurious_score": 0,
+        "approachable_score": 0
+      }
+    },
+    {
+      "id": 12,
+      "title": "Natural & Organic",
+      "description": "Nature-inspired design with organic shapes and natural elements",
+      "visual_hints": "Natural photography, organic shapes, earth tones, nature elements",
+      "path": "https://images.pexels.com/photos/3184454/pexels-photo-3184454.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "scores": {
+        "warm_score": 1,
+        "cool_score": 0,
+        "mono_score": 0,
+        "vivid_score": 0,
+        "friendly_score": 0,
+        "professional_score": 0,
+        "creative_score": 0,
+        "minimal_score": 0,
+        "energetic_score": 0,
+        "trustworthy_score": 1,
+        "luxurious_score": 0,
+        "approachable_score": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Write(src/**)",
+      "Write(docs/**)",
+      "Write(.tmp/**)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push origin*:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(npm install:*)",
+      "Bash(pnpm install:*)",
+      "Bash(rm *)",
+      "Bash(ls:*)",
+      "Bash(cat **)",
+      "Bash(osascript -e:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__gemini-cli__ask-gemini",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(npm run dev:*)",
+      "Bash(npx supabase functions deploy:*)"
+    ],
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Read(.env.*)",
+      "Read(id_rsa)",
+      "Read(id_ed25519)",
+      "Write(.env*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "context7",
+    "sequential-thinking"
+  ]
+}
