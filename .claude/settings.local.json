@@ -25,7 +25,11 @@
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
       "Bash(npm run dev:*)",
-      "Bash(npx supabase functions deploy:*)"
+      "Bash(npx supabase functions deploy:*)",
+      "Bash(grep:*)",
+      "Bash(supabase functions serve:*)",
+      "Bash(supabase functions deploy:*)",
+      "Bash(supabase secrets set:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -41,9 +45,9 @@
       "Bash(wget:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "context7",
     "sequential-thinking"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
