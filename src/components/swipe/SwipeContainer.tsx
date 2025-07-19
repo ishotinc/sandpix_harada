@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { SwipeCard } from './SwipeCard';
 import { SwipeImage } from '@/types/project';
 import { Heart, X, RotateCcw } from 'lucide-react';
@@ -44,7 +45,7 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
         setCurrentIndex(currentIndex + 1);
         setIsAnimating(false);
       }
-    }, 300);
+    }, 400); // Increased slightly to match spring animation
   };
 
   const handleUndo = () => {
@@ -73,20 +74,45 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
           <span>{Math.round(progress)}% complete</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
+          <motion.div 
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           />
         </div>
       </div>
 
       {/* Swipe Card */}
-      <div className="relative mb-8">
-        <SwipeCard
-          image={currentImage}
-          onSwipe={handleSwipe}
-          isAnimating={isAnimating}
-        />
+      <div className="relative mb-8 h-[500px]">
+        <AnimatePresence mode="wait">
+          {currentImage && (
+            <motion.div
+              key={currentImage.id}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ 
+                x: swipeResults[swipeResults.length - 1]?.liked ? 300 : -300,
+                opacity: 0,
+                scale: 0.8,
+                transition: { duration: 0.3 }
+              }}
+              transition={{ 
+                type: 'spring', 
+                stiffness: 300, 
+                damping: 30,
+                opacity: { duration: 0.2 }
+              }}
+              className="absolute inset-0"
+            >
+              <SwipeCard
+                image={currentImage}
+                onSwipe={handleSwipe}
+                isAnimating={isAnimating}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Action Buttons */}
