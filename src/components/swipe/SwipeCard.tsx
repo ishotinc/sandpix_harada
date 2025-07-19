@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { SwipeImage } from '@/types/project';
 import { Heart, X } from 'lucide-react';
 
@@ -11,87 +11,49 @@ interface SwipeCardProps {
 }
 
 export function SwipeCard({ image, onSwipe, isAnimating }: SwipeCardProps) {
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isAnimating) return;
-    setIsDragging(true);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  // Transform values based on drag position
+  const rotate = useTransform(x, [-200, 0, 200], [-30, 0, 30]);
+  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 0.8, 1, 0.8, 0.5]);
+  
+  // Indicator opacities
+  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
+  const passOpacity = useTransform(x, [-100, 0], [1, 0]);
+  
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = 100;
     
-    const startX = e.clientX;
-    const startY = e.clientY;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
-      setDragOffset({ x: deltaX, y: deltaY });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      
-      if (Math.abs(dragOffset.x) > 100) {
-        onSwipe(dragOffset.x > 0);
-      }
-      
-      setDragOffset({ x: 0, y: 0 });
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    if (Math.abs(info.offset.x) > threshold) {
+      onSwipe(info.offset.x > 0);
+    }
   };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (isAnimating) return;
-    setIsDragging(true);
-    
-    const startX = e.touches[0].clientX;
-    const startY = e.touches[0].clientY;
-
-    const handleTouchMove = (e: TouchEvent) => {
-      const deltaX = e.touches[0].clientX - startX;
-      const deltaY = e.touches[0].clientY - startY;
-      setDragOffset({ x: deltaX, y: deltaY });
-    };
-
-    const handleTouchEnd = () => {
-      setIsDragging(false);
-      
-      if (Math.abs(dragOffset.x) > 100) {
-        onSwipe(dragOffset.x > 0);
-      }
-      
-      setDragOffset({ x: 0, y: 0 });
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleTouchEnd);
-  };
-
-  const rotation = dragOffset.x * 0.1;
-  const opacity = Math.max(0.7, 1 - Math.abs(dragOffset.x) * 0.002);
 
   return (
     <div className="relative">
-      <div
-        ref={cardRef}
+      <motion.div
         className={`
           relative bg-white rounded-2xl shadow-xl overflow-hidden cursor-grab active:cursor-grabbing
-          transition-all duration-300 select-none
-          ${isDragging ? 'scale-105' : 'hover:scale-102'}
+          select-none
           ${isAnimating ? 'pointer-events-none' : ''}
         `}
         style={{
-          transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${rotation}deg)`,
+          x,
+          y,
+          rotate,
           opacity,
         }}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
+        drag={!isAnimating}
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        dragElastic={1}
+        dragMomentum={false}
+        onDragEnd={handleDragEnd}
+        whileHover={{ scale: isAnimating ? 1 : 1.02 }}
+        whileDrag={{ scale: 1.05 }}
+        transition={{
+          scale: { type: 'spring', stiffness: 300, damping: 30 },
+        }}
       >
         {/* Image */}
         <div className="aspect-[4/3] overflow-hidden">
@@ -117,37 +79,21 @@ export function SwipeCard({ image, onSwipe, isAnimating }: SwipeCardProps) {
         </div>
 
         {/* Swipe Indicators */}
-        {isDragging && (
-          <>
-            <div
-              className={`
-                absolute top-4 left-4 px-3 py-1 rounded-full font-bold text-sm
-                transition-opacity duration-200
-                ${dragOffset.x > 50 
-                  ? 'bg-green-500 text-white opacity-100' 
-                  : 'bg-green-100 text-green-500 opacity-50'
-                }
-              `}
-            >
-              <Heart className="w-4 h-4 inline mr-1" />
-              LIKE
-            </div>
-            <div
-              className={`
-                absolute top-4 right-4 px-3 py-1 rounded-full font-bold text-sm
-                transition-opacity duration-200
-                ${dragOffset.x < -50 
-                  ? 'bg-red-500 text-white opacity-100' 
-                  : 'bg-red-100 text-red-500 opacity-50'
-                }
-              `}
-            >
-              <X className="w-4 h-4 inline mr-1" />
-              PASS
-            </div>
-          </>
-        )}
-      </div>
+        <motion.div
+          className="absolute top-4 left-4 px-3 py-1 rounded-full font-bold text-sm bg-green-500 text-white"
+          style={{ opacity: likeOpacity }}
+        >
+          <Heart className="w-4 h-4 inline mr-1" />
+          LIKE
+        </motion.div>
+        <motion.div
+          className="absolute top-4 right-4 px-3 py-1 rounded-full font-bold text-sm bg-red-500 text-white"
+          style={{ opacity: passOpacity }}
+        >
+          <X className="w-4 h-4 inline mr-1" />
+          PASS
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
