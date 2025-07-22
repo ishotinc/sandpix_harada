@@ -29,7 +29,9 @@
       "Bash(grep:*)",
       "Bash(supabase functions serve:*)",
       "Bash(supabase functions deploy:*)",
-      "Bash(supabase secrets set:*)"
+      "Bash(supabase secrets set:*)",
+      "Bash(rm:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
