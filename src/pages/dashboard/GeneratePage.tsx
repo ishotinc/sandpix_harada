@@ -6,6 +6,7 @@ import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
+import { UsageCounter } from '../../components/dashboard/UsageCounter';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
 import { useToast } from '../../components/ui/ToastProvider';
@@ -177,8 +178,19 @@ export default function GeneratePage() {
         setGeneratedHtml(result.html);
         showToast('success', 'Landing page generated successfully!');
         
+        // Show usage info if available
+        if (result.usage) {
+          showToast('info', `${result.usage.remaining} generations remaining today`);
+        }
+        
         // Auto-save the generated landing page
         await autoSaveProject(data, result.html);
+      } else if (response.status === 429) {
+        // Handle rate limit error
+        showToast('error', result.message || 'Daily limit reached');
+        if (result.usage) {
+          showToast('info', `Resets in ${result.usage.resetsIn}`);
+        }
       } else {
         showToast('error', result.error || 'Failed to generate landing page');
       }
@@ -291,6 +303,11 @@ export default function GeneratePage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
+        {/* Show usage counter at the top */}
+        <div className="mb-6">
+          <UsageCounter />
+        </div>
+        
         {currentStep === 'swipe' && (
           <SwipeContainer
             images={swipeConfig.images}
