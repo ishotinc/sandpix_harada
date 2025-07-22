@@ -31,7 +31,12 @@
       "Bash(supabase functions deploy:*)",
       "Bash(supabase secrets set:*)",
       "Bash(rm:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(find:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [
       "Bash(sudo:*)",

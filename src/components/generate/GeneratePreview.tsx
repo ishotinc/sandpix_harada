@@ -2,17 +2,34 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Save, RefreshCw, Eye, Code } from 'lucide-react';
+import { Save, RefreshCw, Eye, Code, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
 
 interface GeneratePreviewProps {
   html: string;
   loading: boolean;
   onSave: () => void;
   onRegenerate: () => void;
+  projectId?: string;
+  isPublished?: boolean;
+  onPublish?: () => void;
 }
 
-export function GeneratePreview({ html, loading, onSave, onRegenerate }: GeneratePreviewProps) {
+export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish }: GeneratePreviewProps) {
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
+  const [copySuccess, setCopySuccess] = useState('');
+  
+  const publicUrl = projectId ? `${window.location.origin}/p/${projectId}` : '';
+  
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setCopySuccess('Copied!');
+      setTimeout(() => setCopySuccess(''), 2000);
+    } catch (err) {
+      setCopySuccess('Failed to copy!');
+      setTimeout(() => setCopySuccess(''), 2000);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -22,6 +39,50 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate }: Generat
           <p className="text-gray-600 mt-2">
             Review your generated landing page and save it when you're satisfied
           </p>
+          {projectId && (
+            <div className="mt-3 flex items-center space-x-3">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                  isPublished
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}
+              >
+                {isPublished ? (
+                  <Globe className="w-4 h-4 mr-1.5" />
+                ) : (
+                  <FileText className="w-4 h-4 mr-1.5" />
+                )}
+                {isPublished ? 'Published' : 'Draft'}
+              </span>
+              {isPublished && publicUrl && (
+                <div className="flex items-center space-x-2 bg-gray-50 px-3 py-1 rounded-lg">
+                  <span className="text-sm text-gray-600">
+                    {publicUrl}
+                  </span>
+                  <button
+                    onClick={copyToClipboard}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                    title="Copy URL"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                  <a
+                    href={publicUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                  {copySuccess && (
+                    <span className="text-xs text-green-600 ml-2">{copySuccess}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center space-x-4">
@@ -68,6 +129,17 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate }: Generat
             <Save className="w-4 h-4 mr-2" />
             Save Project
           </Button>
+
+          {projectId && !isPublished && onPublish && (
+            <Button
+              variant="gradient"
+              onClick={onPublish}
+              disabled={loading}
+            >
+              <Globe className="w-4 h-4 mr-2" />
+              Publish
+            </Button>
+          )}
         </div>
       </div>
 

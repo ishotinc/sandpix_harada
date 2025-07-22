@@ -27,6 +27,7 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { id: regenerateId } = useParams<{ id: string }>();
@@ -62,6 +63,7 @@ export default function GeneratePage() {
           custom_head: data.project.custom_head,
           custom_body: data.project.custom_body,
         });
+        setIsPublished(data.project.is_published);
         setIsRegenerating(true);
         // Skip to swipe step for regeneration
         setCurrentStep('swipe');
@@ -107,6 +109,7 @@ export default function GeneratePage() {
               custom_body: draft.custom_body,
             });
             setGeneratedHtml(draft.generated_html);
+            setIsPublished(draft.is_published);
             setCurrentStep('preview');
           }
         }
@@ -233,6 +236,7 @@ export default function GeneratePage() {
         
         if (response.ok) {
           setProjectId(result.project.id);
+          setIsPublished(false); // New projects are always drafts
           showToast('info', 'Draft created and auto-saved');
         } else if (result.requiresUpgrade) {
           showToast('warning', 'Project limit reached. Your landing page is generated but not saved.');
@@ -251,7 +255,7 @@ export default function GeneratePage() {
       const projectPayload = {
         ...projectData,
         generated_html: generatedHtml,
-        is_published: true, // Mark as published when manually saved
+        is_published: false, // Keep as draft when saving
       };
 
       if (projectId) {
@@ -289,6 +293,34 @@ export default function GeneratePage() {
       }
     } catch (error) {
       showToast('error', 'Failed to save project');
+    }
+  };
+
+  const handlePublishProject = async () => {
+    if (!projectId) {
+      showToast('error', 'Please save the project first before publishing');
+      return;
+    }
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${apiEndpoints.projects}/${projectId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          is_published: true,
+          is_public: true,
+        }),
+      });
+
+      if (response.ok) {
+        setIsPublished(true);
+        showToast('success', 'Project published successfully! Your landing page is now publicly accessible.');
+      } else {
+        showToast('error', 'Failed to publish project');
+      }
+    } catch (error) {
+      showToast('error', 'Failed to publish project');
     }
   };
 
@@ -330,6 +362,9 @@ export default function GeneratePage() {
             loading={loading}
             onSave={handleSaveProject}
             onRegenerate={() => generateLandingPage(projectData)}
+            projectId={projectId || undefined}
+            isPublished={isPublished}
+            onPublish={handlePublishProject}
           />
         )}
       </div>
