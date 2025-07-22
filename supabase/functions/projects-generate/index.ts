@@ -40,6 +40,46 @@ serve(async (req) => {
       })
     }
 
+    // Create service role client for usage tracking
+    const supabaseServiceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    )
+
+    // Check daily usage limit (5 generations per day)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const { count } = await supabaseServiceClient
+      .from('generation_usage')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('generated_at', today.toISOString())
+      .eq('success', true)
+
+    if (count !== null && count >= 5) {
+      // Calculate time until reset (midnight UTC)
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      const hoursUntilReset = Math.ceil((tomorrow.getTime() - Date.now()) / (1000 * 60 * 60))
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'Daily limit reached',
+          message: 'You\'ve reached your daily limit of 5 generations.',
+          usage: { 
+            current: count, 
+            limit: 5,
+            resetsIn: `${hoursUntilReset} hours`
+          }
+        }), 
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
     const { projectData, swipeScores } = await req.json()
 
     // Get user profile for personalization
@@ -63,9 +103,52 @@ serve(async (req) => {
 
     // Generate landing page HTML using Gemini AI
     console.log('Generating landing page with AI...')
-    const html = await geminiClient.generateLandingPage(prompt)
+    let html: string
+    let generationError: string | null = null
+    
+    try {
+      html = await geminiClient.generateLandingPage(prompt)
+    } catch (error) {
+      generationError = error.message
+      // Log failed generation attempt
+      await supabaseServiceClient
+        .from('generation_usage')
+        .insert({
+          user_id: user.id,
+          success: false,
+          error_message: generationError
+        })
+      
+      throw error
+    }
 
-    return new Response(JSON.stringify({ html }), {
+    // Log successful generation
+    await supabaseServiceClient
+      .from('generation_usage')
+      .insert({
+        user_id: user.id,
+        success: true
+      })
+
+    // Return current usage with response
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    
+    const { count: newCount } = await supabaseServiceClient
+      .from('generation_usage')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('generated_at', todayStart.toISOString())
+      .eq('success', true)
+
+    return new Response(JSON.stringify({ 
+      html,
+      usage: {
+        current: newCount || 0,
+        limit: 5,
+        remaining: 5 - (newCount || 0)
+      }
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
