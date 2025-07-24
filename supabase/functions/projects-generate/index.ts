@@ -101,7 +101,11 @@ serve(async (req) => {
       }
     }
 
-    const { projectData, swipeScores } = await req.json()
+    const { projectData, swipeScores, language: requestLanguage, purpose: requestPurpose } = await req.json()
+
+    // Extract language and purpose from request body (not from projectData)
+    const language = requestLanguage || 'ja'
+    const purpose = requestPurpose || projectData.purpose || 'product'
 
     // Get full user profile for personalization
     const { data: fullProfile } = await supabaseClient
@@ -119,8 +123,8 @@ serve(async (req) => {
     // Create Gemini client
     const geminiClient = createGeminiClient(geminiApiKey)
 
-    // Generate comprehensive prompt
-    const prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType)
+    // Generate comprehensive prompt with language and purpose
+    const prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType, language, purpose)
 
     // Generate landing page HTML using Gemini AI
     console.log('Generating landing page with AI...')

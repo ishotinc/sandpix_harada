@@ -28,6 +28,7 @@ import ProjectsPage from "./pages/dashboard/ProjectsPage";
 import GeneratePage from "./pages/dashboard/GeneratePage";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import ProjectEditPage from "./pages/dashboard/ProjectEditPage";
+import BillingPage from "./pages/dashboard/BillingPage";
 
 // Public Page
 import PublicPage from "./pages/PublicPage";
@@ -74,6 +75,7 @@ function App() {
           <Route path="/projects/generate/:id" element={<GeneratePage />} />
           <Route path="/projects/:id" element={<ProjectEditPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/billing" element={<BillingPage />} />
 
           {/* Public Page */}
           <Route path="/p/:id" element={<PublicPage />} />

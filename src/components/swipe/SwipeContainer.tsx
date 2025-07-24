@@ -70,7 +70,7 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-          <span>{currentIndex + 1} of {images.length}</span>
+          <span>{currentIndex} of {images.length}</span>
           <span>{Math.round(progress)}% complete</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -78,7 +78,7 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
             className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           />
         </div>
       </div>
@@ -98,9 +98,8 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
                 transition: { duration: 0.3 }
               }}
               transition={{ 
-                type: 'spring', 
-                stiffness: 300, 
-                damping: 30,
+                duration: 0.3, 
+                ease: 'easeOut',
                 opacity: { duration: 0.2 }
               }}
               className="absolute inset-0"

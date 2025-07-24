@@ -10,7 +10,7 @@ export const PLAN_LIMITS = {
     dailyGenerations: 50,
     hasFooterLogo: false,
     displayName: 'Plus Plan',
-    priceMonthly: 2980 // JPY
+    priceMonthly: 20 // USD
   }
 } as const;
 

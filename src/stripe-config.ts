@@ -10,25 +10,27 @@ export interface StripeProduct {
   planType?: 'free' | 'plus';
 }
 
+// In Vite, use import.meta.env for environment variables
+// Variables must be prefixed with VITE_ to be exposed to the client
 export const STRIPE_CONFIG = {
   plusPlan: {
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PLUS_PRICE_ID!,
-    productId: process.env.NEXT_PUBLIC_STRIPE_PLUS_PRODUCT_ID!,
-    price: 2980,
-    currency: 'jpy',
+    priceId: import.meta.env.VITE_STRIPE_PLUS_PRICE_ID || 'price_placeholder_plus',
+    productId: import.meta.env.VITE_STRIPE_PLUS_PRODUCT_ID || 'prod_placeholder_plus',
+    price: 20,
+    currency: 'usd',
     interval: 'month' as const
   }
 };
 
 export const stripeProducts: StripeProduct[] = [
   {
-    id: process.env.NEXT_PUBLIC_STRIPE_PLUS_PRODUCT_ID || 'prod_placeholder_plus',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PLUS_PRICE_ID || 'price_placeholder_plus',
+    id: import.meta.env.VITE_STRIPE_PLUS_PRODUCT_ID || 'prod_placeholder_plus',
+    priceId: import.meta.env.VITE_STRIPE_PLUS_PRICE_ID || 'price_placeholder_plus',
     name: 'SandPix Plus Plan',
     description: '5 projects, 50 generations/day, no footer logo',
     mode: 'subscription',
-    price: 2980,
-    currency: 'jpy',
+    price: 20,
+    currency: 'usd',
     interval: 'month',
     planType: 'plus',
   },

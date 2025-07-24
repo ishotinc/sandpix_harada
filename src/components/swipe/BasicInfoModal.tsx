@@ -12,18 +12,9 @@ interface BasicInfoModalProps {
   onSubmit: (data: any) => void;
 }
 
-const purposes = [
-  { value: 'service', label: 'Service Introduction' },
-  { value: 'product', label: 'Product Sales' },
-  { value: 'brand', label: 'Brand/Company' },
-  { value: 'lead', label: 'Lead Generation' },
-  { value: 'event', label: 'Event Promotion' },
-];
-
 export function BasicInfoModal({ isOpen, onClose, onSubmit }: BasicInfoModalProps) {
   const [formData, setFormData] = useState({
     service_name: '',
-    purpose: 'service',
     service_description: '',
     redirect_url: '',
     cta_text: 'Get Started',
@@ -81,23 +72,6 @@ export function BasicInfoModal({ isOpen, onClose, onSubmit }: BasicInfoModalProp
             placeholder="e.g., AI Writing Assistant"
             error={errors.service_name}
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Purpose *
-          </label>
-          <select
-            value={formData.purpose}
-            onChange={(e) => handleChange('purpose', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {purposes.map((purpose) => (
-              <option key={purpose.value} value={purpose.value}>
-                {purpose.label}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div>
