@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { PLAN_LIMITS } from '../_shared/constants.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -109,24 +110,20 @@ serve(async (req) => {
 
           const body = await req.json()
           
-          // Check project limit
-          const { data: existingProjects } = await supabaseClient
-            .from('projects')
-            .select('id')
+          // Get user profile with plan info
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('plan_type, project_count')
             .eq('user_id', user.id)
-
-          const { data: userData } = await supabaseClient
-            .from('users')
-            .select('plan_type')
-            .eq('id', user.id)
             .single()
 
-          const planType = userData?.plan_type || 'free'
-          const limit = planType === 'free' ? 2 : 5
+          const planType = profile?.plan_type || 'free'
+          const currentProjectCount = profile?.project_count || 0
+          const limits = PLAN_LIMITS[planType]
           
-          if (existingProjects && existingProjects.length >= limit) {
+          if (currentProjectCount >= limits.maxProjects) {
             return new Response(JSON.stringify({ 
-              error: 'Project limit reached',
+              error: `Project limit reached. ${limits.displayName} allows maximum ${limits.maxProjects} projects.`,
               requiresUpgrade: planType === 'free'
             }), {
               status: 403,
@@ -140,6 +137,7 @@ serve(async (req) => {
               user_id: user.id,
               service_name: body.service_name,
               purpose: body.purpose || 'service',
+              language: body.language || 'ja',
               service_description: body.service_description || '',
               redirect_url: body.redirect_url || '',
               cta_text: body.cta_text || 'Get Started',
@@ -156,6 +154,12 @@ serve(async (req) => {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
           }
+
+          // Increment project count
+          await supabaseClient
+            .from('profiles')
+            .update({ project_count: currentProjectCount + 1 })
+            .eq('user_id', user.id)
 
           return new Response(JSON.stringify({ project }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -182,6 +186,7 @@ serve(async (req) => {
             .update({
               service_name: body.service_name,
               purpose: body.purpose,
+              language: body.language,
               service_description: body.service_description,
               redirect_url: body.redirect_url,
               cta_text: body.cta_text,
@@ -269,6 +274,20 @@ serve(async (req) => {
             status: 404,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
+        }
+
+        // Decrement project count
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('project_count')
+          .eq('user_id', user.id)
+          .single()
+
+        if (profile && profile.project_count > 0) {
+          await supabaseClient
+            .from('profiles')
+            .update({ project_count: profile.project_count - 1 })
+            .eq('user_id', user.id)
         }
 
         return new Response(JSON.stringify({ success: true }), {

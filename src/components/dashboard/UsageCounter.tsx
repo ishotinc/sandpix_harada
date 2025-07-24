@@ -10,6 +10,7 @@ interface UsageData {
 export function UsageCounter() {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     fetchUsage();
@@ -21,6 +22,21 @@ export function UsageCounter() {
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Check if user is admin
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      setIsAdmin(userData?.is_admin || false);
+
+      // Skip usage check for admin users
+      if (userData?.is_admin) {
+        setLoading(false);
+        return;
+      }
 
       // Get today's usage count
       const today = new Date();
@@ -48,7 +64,25 @@ export function UsageCounter() {
     }
   };
 
-  if (loading || !usage) return null;
+  if (loading) return null;
+
+  // Display unlimited for admin users
+  if (isAdmin) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+        <div className="flex justify-between items-center">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Daily Generations
+          </h3>
+          <span className="text-sm font-semibold text-green-600">
+            Unlimited (Admin)
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!usage) return null;
 
   const percentage = (usage.current / usage.limit) * 100;
   const isNearLimit = usage.remaining <= 2;

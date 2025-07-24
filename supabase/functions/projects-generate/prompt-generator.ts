@@ -340,7 +340,8 @@ white-space: nowrap; /* 必ず1行表示 */
 export function generateFinalPrompt(
   projectData: ProjectData,
   profileData: Profile,
-  swipeScores: SwipeScores
+  swipeScores: SwipeScores,
+  planType: 'free' | 'plus' = 'free'
 ): string {
   // スワイプスコアをテキスト形式に変換
   const scoresText = Object.entries(swipeScores)
@@ -392,6 +393,45 @@ export function generateFinalPrompt(
     const regex = new RegExp(`\\$\\{profileData\\.${key}(\\s*\\|\\|\\s*'[^']*')?\\}`, 'g');
     prompt = prompt.replace(regex, value || '');
   });
+  
+  // Inject footer for free users
+  if (planType === 'free') {
+    // Add padding-bottom to body to ensure content is not hidden behind fixed footer
+    prompt = prompt.replace(
+      '</body>',
+      `
+<!-- Footer for free users -->
+<div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 16px 0; text-align: center; z-index: 9999; box-shadow: 0 -4px 12px rgba(0,0,0,0.15);">
+  <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+    <!-- Logo SVG -->
+    <svg width="32" height="32" viewBox="0 0 100 100" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+      <circle cx="50" cy="50" r="45" fill="#fff" opacity="0.9"/>
+      <path d="M30 70 Q50 20 70 70" stroke="#764ba2" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="8" fill="#667eea"/>
+    </svg>
+    <!-- Text with styled Sandpix name -->
+    <div style="font-size: 18px; font-weight: 600; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+      Made with 
+      <a href="https://sandpix-harada.vercel.app/" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 700; background: rgba(251, 191, 36, 0.2); padding: 2px 8px; border-radius: 4px; margin: 0 4px; transition: all 0.3s ease;">
+        SANDPIX
+      </a>
+    </div>
+  </div>
+</div>
+<style>
+  /* Ensure content doesn't hide behind footer */
+  body {
+    padding-bottom: 80px !important;
+  }
+  /* Hover effect for the link */
+  a[href="https://sandpix-harada.vercel.app/"]:hover {
+    background: rgba(251, 191, 36, 0.4) !important;
+    transform: translateY(-1px);
+  }
+</style>
+</body>`
+    );
+  }
   
   return prompt;
 }
