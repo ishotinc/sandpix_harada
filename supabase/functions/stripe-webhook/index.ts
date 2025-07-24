@@ -60,6 +60,61 @@ async function handleEvent(event: Stripe.Event) {
     return;
   }
 
+  // Handle checkout.session.completed for plan upgrades
+  if (event.type === 'checkout.session.completed') {
+    const session = stripeData as Stripe.Checkout.Session;
+    
+    if (session.mode === 'subscription' && session.client_reference_id) {
+      // Update user profile to Plus plan
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          stripe_customer_id: session.customer as string,
+          plan_type: 'plus'
+        })
+        .eq('user_id', session.client_reference_id);
+
+      if (updateError) {
+        console.error('Error updating user profile:', updateError);
+      } else {
+        console.info(`Updated user ${session.client_reference_id} to Plus plan`);
+      }
+    }
+  }
+
+  // Handle subscription updates
+  if (event.type === 'customer.subscription.created' || 
+      event.type === 'customer.subscription.updated' ||
+      event.type === 'customer.subscription.deleted') {
+    const subscription = stripeData as Stripe.Subscription;
+    
+    // Find user by stripe customer ID
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('stripe_customer_id', subscription.customer)
+      .single();
+    
+    if (profile) {
+      const planType = (event.type === 'customer.subscription.deleted' || 
+                       subscription.status !== 'active') ? 'free' : 'plus';
+      
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          plan_type: planType,
+          stripe_subscription_id: event.type === 'customer.subscription.deleted' ? null : subscription.id
+        })
+        .eq('user_id', profile.user_id);
+
+      if (updateError) {
+        console.error('Error updating subscription status:', updateError);
+      } else {
+        console.info(`Updated user ${profile.user_id} to ${planType} plan`);
+      }
+    }
+  }
+
   if (!('customer' in stripeData)) {
     return;
   }

@@ -53,6 +53,7 @@ export interface Database {
           daily_generation_count: number;
           daily_generation_reset_at: string | null;
           project_count: number;
+          stripe_subscription_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -69,6 +70,7 @@ export interface Database {
           daily_generation_count?: number;
           daily_generation_reset_at?: string | null;
           project_count?: number;
+          stripe_subscription_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -85,6 +87,7 @@ export interface Database {
           daily_generation_count?: number;
           daily_generation_reset_at?: string | null;
           project_count?: number;
+          stripe_subscription_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

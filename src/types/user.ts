@@ -24,5 +24,6 @@ export interface UserWithProfile extends User {
     daily_generation_count: number;
     daily_generation_reset_at: string | null;
     project_count: number;
+    stripe_subscription_id: string | null;
   };
 }

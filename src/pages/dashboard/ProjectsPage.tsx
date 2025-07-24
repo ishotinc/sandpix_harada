@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
-import { Plus, Eye, Edit, Trash2, ExternalLink } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
-import { useToast } from '../../components/ui/ToastProvider';
-import { Project } from '../../types/project';
-import { Link } from 'react-router-dom';
-import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { DashboardLayout } from "../../components/dashboard/DashboardLayout";
+import { Plus, Eye, Edit, Trash2, ExternalLink } from "lucide-react";
+import { Button } from "../../components/ui/Button";
+import { useToast } from "../../components/ui/ToastProvider";
+import { Project } from "../../types/project";
+import { Link } from "react-router-dom";
+import { apiEndpoints, getAuthHeaders } from "../../lib/api/client";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -27,38 +27,38 @@ export default function ProjectsPage() {
         headers,
       });
       const data = await response.json();
-      
+
       if (response.ok) {
         setProjects(data.projects);
       } else {
-        showToast('error', data.error || 'Failed to fetch projects');
+        showToast("error", data.error || "Failed to fetch projects");
       }
     } catch (error) {
-      showToast('error', 'Failed to fetch projects');
+      showToast("error", "Failed to fetch projects");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (projectId: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
+    if (!confirm("Are you sure you want to delete this project?")) return;
 
     try {
       const headers = await getAuthHeaders();
       const response = await fetch(`${apiEndpoints.projects}/${projectId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers,
       });
 
       if (response.ok) {
-        setProjects(projects.filter(p => p.id !== projectId));
-        showToast('success', 'Project deleted successfully');
+        setProjects(projects.filter((p) => p.id !== projectId));
+        showToast("success", "Project deleted successfully");
       } else {
         const data = await response.json();
-        showToast('error', data.error || 'Failed to delete project');
+        showToast("error", data.error || "Failed to delete project");
       }
     } catch (error) {
-      showToast('error', 'Failed to delete project');
+      showToast("error", "Failed to delete project");
     }
   };
 
@@ -132,7 +132,7 @@ export default function ProjectsPage() {
                   </div>
 
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {project.service_description || 'No description'}
+                    {project.service_description || "No description"}
                   </p>
 
                   <div className="text-xs text-gray-500 mb-4">
@@ -146,11 +146,11 @@ export default function ProjectsPage() {
                         Edit
                       </Button>
                     </Link>
-                    
+
                     <Link to={`/p/${project.id}`} target="_blank">
                       <Button variant="ghost" size="sm">
                         <ExternalLink className="w-4 h-4 mr-1" />
-                        {project.is_published ? 'View' : 'Preview'}
+                        {project.is_published ? "View" : "Preview"}
                       </Button>
                     </Link>
 
