@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase/client';
 import { PLAN_LIMITS } from '../../lib/constants/plans';
+import { useProfile } from '../../hooks/useProfile';
 
 interface UsageData {
   current: number;
@@ -11,56 +12,50 @@ interface UsageData {
 }
 
 export function UsageCounter({ refreshTrigger }: { refreshTrigger?: number }) {
-  const [usage, setUsage] = useState<UsageData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, isLoading, refetch } = useProfile();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
 
   useEffect(() => {
-    fetchUsage();
-  }, [refreshTrigger]);
+    checkAdminStatus();
+  }, []);
 
-  const fetchUsage = async () => {
+  useEffect(() => {
+    if (refreshTrigger) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
+
+  const checkAdminStatus = async () => {
     try {
       if (!supabase) return;
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get user profile with plan information
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin, plan_type, daily_generation_count, daily_generation_reset_at')
+      // Check is_admin from users table
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
         .eq('id', user.id)
         .single();
 
-      setIsAdmin(profile?.is_admin || false);
-
-      // Skip usage check for admin users
-      if (profile?.is_admin) {
-        setLoading(false);
-        return;
-      }
-
-      const planType = profile?.plan_type || 'free';
-      const limits = PLAN_LIMITS[planType];
-      const currentCount = profile?.daily_generation_count || 0;
-      const remaining = Math.max(0, limits.dailyGenerations - currentCount);
-      
-      setUsage({
-        current: currentCount,
-        limit: limits.dailyGenerations,
-        remaining: remaining,
-        planType: planType,
-        resetTime: profile?.daily_generation_reset_at
-      });
+      setIsAdmin(userData?.is_admin || false);
     } catch (error) {
-      console.error('Failed to fetch usage:', error);
+      console.error('Failed to check admin status:', error);
     } finally {
-      setLoading(false);
+      setCheckingAdmin(false);
     }
   };
 
-  if (loading) return null;
+  if (isLoading || checkingAdmin) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+        <div className="h-2 bg-gray-200 rounded"></div>
+      </div>
+    );
+  }
 
   // Display unlimited for admin users
   if (isAdmin) {
@@ -71,14 +66,28 @@ export function UsageCounter({ refreshTrigger }: { refreshTrigger?: number }) {
     );
   }
 
-  if (!usage) return null;
+  if (!profile) return null;
+
+  const planType = profile.plan_type || 'free';
+  const planName = planType === 'plus' ? 'Plus' : 'Free';
+  const limits = PLAN_LIMITS[planType];
+  const currentCount = profile.daily_generation_count || 0;
+  const remaining = Math.max(0, limits.dailyGenerations - currentCount);
+  
+  const usage: UsageData = {
+    current: currentCount,
+    limit: limits.dailyGenerations,
+    remaining: remaining,
+    planType: planType,
+    resetTime: profile.daily_generation_reset_at
+  };
 
   const percentage = (usage.current / usage.limit) * 100;
   const isNearLimit = usage.remaining <= 3 && usage.remaining > 0;
   const isAtLimit = usage.remaining === 0;
   
   // Calculate time until reset
-  const getTimeUntilReset = (resetTime?: string) => {
+  const getTimeUntilReset = (resetTime?: string | null) => {
     if (!resetTime) return '24 hours';
     const reset = new Date(resetTime);
     const now = new Date();
@@ -92,14 +101,25 @@ export function UsageCounter({ refreshTrigger }: { refreshTrigger?: number }) {
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm text-gray-600">Daily Generations</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Daily Generations</span>
+          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+            planType === 'plus' 
+              ? 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800' 
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+            {planName}
+          </span>
+        </div>
         <span className="text-sm font-medium">
           {usage.current} / {usage.limit}
         </span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
-          className="bg-blue-600 h-2 rounded-full transition-all"
+          className={`h-2 rounded-full transition-all ${
+            isAtLimit ? 'bg-red-600' : isNearLimit ? 'bg-orange-500' : 'bg-blue-600'
+          }`}
           style={{ width: `${percentage}%` }}
         />
       </div>
@@ -111,6 +131,11 @@ export function UsageCounter({ refreshTrigger }: { refreshTrigger?: number }) {
       {isAtLimit && (
         <p className="text-xs text-red-600 mt-2">
           Daily limit reached. Resets in {getTimeUntilReset(usage.resetTime)}
+        </p>
+      )}
+      {planType === 'plus' && profile.daily_project_count !== undefined && (
+        <p className="text-xs text-gray-500 mt-2">
+          Projects today: {profile.daily_project_count} / {PLAN_LIMITS.plus.maxProjects}
         </p>
       )}
     </div>

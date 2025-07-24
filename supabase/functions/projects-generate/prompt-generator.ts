@@ -444,6 +444,12 @@ export function generateFinalPrompt(
   language: 'ja' | 'en' = 'en',
   purpose: string = 'product'
 ): string {
+  // Language instruction for the prompt
+  const languageInstruction =
+    language === 'ja'
+      ? 'Please generate ALL content in Japanese. All text, headings, buttons, and UI elements must be in Japanese.'
+      : 'Please generate ALL content in English. All text, headings, buttons, and UI elements must be in English.';
+
   // スワイプスコアをテキスト形式に変換
   const scoresText = Object.entries(swipeScores)
     .map(([key, value]) => `- ${key}: ${value}`)
@@ -476,7 +482,10 @@ export function generateFinalPrompt(
   const purposeTemplate = PURPOSE_TEMPLATES[language][purpose] || PURPOSE_TEMPLATES[language]['product'];
   
   // Determine which comprehensive template to use based on language
-  let basePrompt = COMPREHENSIVE_PROMPT_TEMPLATE;
+  let basePrompt = `# 🌐 LANGUAGE REQUIREMENT
+${languageInstruction}
+
+${COMPREHENSIVE_PROMPT_TEMPLATE}`;
   
   // For Japanese output, modify the language requirement section
   if (language === 'ja') {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Save, RefreshCw, Eye, Code, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
+import { Save, RefreshCw, Eye, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
 
 interface GeneratePreviewProps {
   html: string;
@@ -15,7 +15,6 @@ interface GeneratePreviewProps {
 }
 
 export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish }: GeneratePreviewProps) {
-  const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
   const [copySuccess, setCopySuccess] = useState('');
   
   const publicUrl = projectId ? `${window.location.origin}/p/${projectId}` : '';
@@ -86,31 +85,6 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('preview')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'preview'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Eye className="w-4 h-4 mr-1 inline" />
-              Preview
-            </button>
-            <button
-              onClick={() => setViewMode('code')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'code'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Code className="w-4 h-4 mr-1 inline" />
-              Code
-            </button>
-          </div>
-
           <Button
             variant="outline"
             onClick={onRegenerate}
@@ -154,20 +128,12 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           </div>
         ) : html ? (
           <div className="h-[800px]">
-            {viewMode === 'preview' ? (
-              <iframe
-                srcDoc={html}
-                className="w-full h-full border-0"
-                title="Landing Page Preview"
-                sandbox="allow-scripts allow-same-origin"
-              />
-            ) : (
-              <div className="h-full overflow-auto">
-                <pre className="p-6 text-sm bg-gray-50 h-full overflow-auto">
-                  <code>{html}</code>
-                </pre>
-              </div>
-            )}
+            <iframe
+              srcDoc={html}
+              className="w-full h-full border-0"
+              title="Landing Page Preview"
+              sandbox="allow-scripts allow-same-origin"
+            />
           </div>
         ) : (
           <div className="flex items-center justify-center h-96">

@@ -50,7 +50,7 @@ serve(async (req) => {
     // Get user profile with plan info and admin status
     const { data: profile } = await supabaseServiceClient
       .from('profiles')
-      .select('plan_type, daily_generation_count, daily_generation_reset_at')
+      .select('plan_type, daily_generation_count, daily_generation_reset_at, daily_project_count')
       .eq('user_id', user.id)
       .single()
 
@@ -76,10 +76,12 @@ serve(async (req) => {
           .from('profiles')
           .update({ 
             daily_generation_count: 0,
+            daily_project_count: 0,
             daily_generation_reset_at: now.toISOString()
           })
           .eq('user_id', user.id)
         profile.daily_generation_count = 0
+        profile.daily_project_count = 0
       }
 
       if (profile.daily_generation_count >= limits.dailyGenerations) {
@@ -90,6 +92,25 @@ serve(async (req) => {
             usage: {
               used: profile.daily_generation_count,
               limit: limits.dailyGenerations,
+              resetsAt: resetsAt.toISOString()
+            }
+          }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        )
+      }
+
+      // Project limit check for Plus users
+      if (planType === 'plus' && profile.daily_project_count >= limits.maxProjects) {
+        const resetsAt = new Date(lastReset.getTime() + 24 * 60 * 60 * 1000)
+        return new Response(
+          JSON.stringify({ 
+            error: `Daily project creation limit reached. ${limits.displayName} allows ${limits.maxProjects} new projects per day.`,
+            usage: {
+              projects_used: profile.daily_project_count,
+              projects_limit: limits.maxProjects,
               resetsAt: resetsAt.toISOString()
             }
           }),
@@ -163,6 +184,14 @@ serve(async (req) => {
         .from('profiles')
         .update({ daily_generation_count: (profile?.daily_generation_count || 0) + 1 })
         .eq('user_id', user.id)
+
+      // For Plus plan, increment project count
+      if (planType === 'plus') {
+        const { error: rpcError } = await supabaseServiceClient.rpc('increment_project_count', { user_id: user.id })
+        if (rpcError) {
+          console.error('Failed to increment project count:', rpcError)
+        }
+      }
     }
 
     // Return current usage with response
