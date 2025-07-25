@@ -9,12 +9,16 @@ import { useToast } from "../../components/ui/ToastProvider";
 import { Project } from "../../types/project";
 import { Link } from "react-router-dom";
 import { apiEndpoints, getAuthHeaders } from "../../lib/api/client";
+import { useProfile } from "../../hooks/useProfile";
+import { UpgradeBanner } from "../../components/dashboard/UpgradeBanner";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBanner, setShowBanner] = useState(true);
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile();
 
   useEffect(() => {
     fetchProjects();
@@ -53,6 +57,8 @@ export default function ProjectsPage() {
       if (response.ok) {
         setProjects(projects.filter((p) => p.id !== projectId));
         showToast("success", "Project deleted successfully");
+        // Refresh profile to update project count
+        refetchProfile();
       } else {
         const data = await response.json();
         showToast("error", data.error || "Failed to delete project");
@@ -62,17 +68,29 @@ export default function ProjectsPage() {
     }
   };
 
-  if (loading) {
+
+  if (loading || profileLoading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </DashboardLayout>
     );
   }
+
 
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
+        {profile && showBanner && (
+          <UpgradeBanner 
+            projectCount={projects.length} 
+            planType={profile.plan_type}
+            onDismiss={() => setShowBanner(false)}
+          />
+        )}
+        
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">My Projects</h1>

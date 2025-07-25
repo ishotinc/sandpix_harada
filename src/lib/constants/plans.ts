@@ -6,7 +6,7 @@ export const PLAN_LIMITS = {
     displayName: 'Free Plan'
   },
   plus: {
-    maxProjects: 5,
+    maxProjects: Infinity,
     dailyGenerations: 50,
     hasFooterLogo: false,
     displayName: 'Plus Plan',

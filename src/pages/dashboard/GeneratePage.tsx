@@ -34,6 +34,7 @@ export default function GeneratePage() {
   const [language, setLanguage] = useState<'ja' | 'en'>('ja');
   const [purpose, setPurpose] = useState<PurposeType>('product');
   const [usageRefreshTrigger, setUsageRefreshTrigger] = useState(0);
+  const [hitGenerationLimit, setHitGenerationLimit] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { id: regenerateId } = useParams<{ id: string }>();
@@ -44,7 +45,11 @@ export default function GeneratePage() {
       // Load project for regeneration
       loadProjectForRegeneration();
     } else {
-      checkForDraft();
+      // Check if draft checking is disabled
+      const draftCheckDisabled = localStorage.getItem('disableDraftCheck') === 'true';
+      if (!draftCheckDisabled) {
+        checkForDraft();
+      }
     }
   }, [regenerateId]);
 
@@ -92,31 +97,47 @@ export default function GeneratePage() {
       const data = await response.json();
       
       if (response.ok && data.projects) {
-        // Find the most recent draft
-        const draft = data.projects
-          .filter((p: Project) => !p.is_published)
+        // Find the most recent draft that was updated in the last 30 minutes
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+        const recentDraft = data.projects
+          .filter((p: Project) => 
+            !p.is_published && 
+            p.generated_html && 
+            new Date(p.updated_at) > thirtyMinutesAgo
+          )
           .sort((a: Project, b: Project) => 
             new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
           )[0];
         
-        if (draft && draft.generated_html) {
-          const shouldLoad = confirm('You have an unsaved draft. Would you like to continue editing it?');
-          if (shouldLoad) {
-            setProjectId(draft.id);
-            setProjectData({
-              service_name: draft.service_name,
-              purpose: draft.purpose,
-              service_description: draft.service_description,
-              redirect_url: draft.redirect_url,
-              main_copy: draft.main_copy,
-              cta_text: draft.cta_text,
-              service_achievements: draft.service_achievements,
-              custom_head: draft.custom_head,
-              custom_body: draft.custom_body,
-            });
-            setGeneratedHtml(draft.generated_html);
-            setIsPublished(draft.is_published);
-            setCurrentStep('preview');
+        if (recentDraft) {
+          // Check if we've already asked about this draft in this session
+          const askedDrafts = sessionStorage.getItem('askedDrafts');
+          const askedDraftIds = askedDrafts ? JSON.parse(askedDrafts) : [];
+          
+          if (!askedDraftIds.includes(recentDraft.id)) {
+            const shouldLoad = confirm('You have an unsaved draft. Would you like to continue editing it?');
+            
+            // Remember that we asked about this draft
+            askedDraftIds.push(recentDraft.id);
+            sessionStorage.setItem('askedDrafts', JSON.stringify(askedDraftIds));
+            
+            if (shouldLoad) {
+              setProjectId(recentDraft.id);
+              setProjectData({
+                service_name: recentDraft.service_name,
+                purpose: recentDraft.purpose,
+                service_description: recentDraft.service_description,
+                redirect_url: recentDraft.redirect_url,
+                main_copy: recentDraft.main_copy,
+                cta_text: recentDraft.cta_text,
+                service_achievements: recentDraft.service_achievements,
+                custom_head: recentDraft.custom_head,
+                custom_body: recentDraft.custom_body,
+              });
+              setGeneratedHtml(recentDraft.generated_html);
+              setIsPublished(recentDraft.is_published);
+              setCurrentStep('preview');
+            }
           }
         }
       }
@@ -193,6 +214,10 @@ export default function GeneratePage() {
         // Show usage info if available
         if (result.usage) {
           showToast('info', `${result.usage.remaining} generations remaining today`);
+          // Check if user just hit their limit
+          if (result.usage.remaining === 0) {
+            setHitGenerationLimit(true);
+          }
         }
         
         // Refresh usage counter
@@ -200,9 +225,10 @@ export default function GeneratePage() {
         
         // Auto-save the generated landing page
         await autoSaveProject(data, result.html);
-      } else if (response.status === 429) {
-        // Handle rate limit error
-        showToast('error', result.message || 'Daily limit reached');
+      } else if (response.status === 429 || response.status === 403) {
+        // Handle rate limit error (429) or forbidden due to limit (403)
+        showToast('error', result.message || 'Daily generation limit reached');
+        setHitGenerationLimit(true);
         if (result.usage) {
           showToast('info', `Resets in ${result.usage.resetsIn}`);
         }
@@ -395,6 +421,7 @@ export default function GeneratePage() {
             projectId={projectId || undefined}
             isPublished={isPublished}
             onPublish={handlePublishProject}
+            showGenerationLimitBanner={hitGenerationLimit}
           />
         )}
       </div>
