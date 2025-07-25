@@ -47,6 +47,14 @@ export function generateFinalPrompt(
   language: 'ja' | 'en' = 'en',
   purpose: string = 'product'
 ): string {
+  console.log('generateFinalPrompt called with:', {
+    projectData: Object.keys(projectData),
+    profileData: Object.keys(profileData || {}),
+    swipeScores: Object.keys(swipeScores || {}),
+    planType,
+    language,
+    purpose
+  });
   // 言語設定
   const languageCode = language === 'ja' ? 'ja' : 'en';
   const languageInstruction = language === 'ja' 
@@ -97,6 +105,9 @@ export function generateFinalPrompt(
 
   // スワイプスコアの置換
   prompt = prompt.replace(/{swipe_scores}/g, scoresText);
+  
+  console.log('Final prompt generated, length:', prompt.length);
+  console.log('Template variables replaced successfully');
 
   // Inject footer for free users
   if (planType === 'free') {
@@ -107,17 +118,21 @@ export function generateFinalPrompt(
 <!-- Footer for free users -->
 <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 16px 0; text-align: center; z-index: 9999; box-shadow: 0 -4px 12px rgba(0,0,0,0.15);">
   <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-    <!-- Logo SVG -->
-    <svg width="32" height="32" viewBox="0 0 100 100" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
-      <circle cx="50" cy="50" r="45" fill="#fff" opacity="0.9"/>
-      <path d="M30 70 Q50 20 70 70" stroke="#764ba2" stroke-width="8" fill="none" stroke-linecap="round"/>
-      <circle cx="50" cy="50" r="8" fill="#667eea"/>
-    </svg>
+    <!-- SandPix Logo SVG (matching header design) -->
+    <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        <path d="M5 3v4"/>
+        <path d="M19 17v4"/>
+        <path d="M3 5h4"/>
+        <path d="M17 19h4"/>
+      </svg>
+    </div>
     <!-- Text with styled Sandpix name -->
-    <div style="font-size: 18px; font-weight: 600; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+    <div style="font-size: 16px; font-weight: 600; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
       Made with 
-      <a href="https://sandpix-harada.vercel.app/" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 700; background: rgba(251, 191, 36, 0.2); padding: 2px 8px; border-radius: 4px; margin: 0 4px; transition: all 0.3s ease;">
-        SANDPIX
+      <a href="https://sandpix-harada.vercel.app/" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 700; background: rgba(251, 191, 36, 0.15); padding: 4px 8px; border-radius: 6px; margin-left: 4px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.3s ease;">
+        <span style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">Sandpix</span>
       </a>
     </div>
   </div>
@@ -129,8 +144,9 @@ export function generateFinalPrompt(
   }
   /* Hover effect for the link */
   a[href="https://sandpix-harada.vercel.app/"]:hover {
-    background: rgba(251, 191, 36, 0.4) !important;
+    background: rgba(251, 191, 36, 0.3) !important;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
 </style>
 </body>`

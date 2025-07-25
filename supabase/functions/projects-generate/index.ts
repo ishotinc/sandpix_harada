@@ -145,7 +145,18 @@ serve(async (req) => {
     const geminiClient = createGeminiClient(geminiApiKey)
 
     // Generate comprehensive prompt with language and purpose
+    console.log('Generating prompt with data:', {
+      projectDataKeys: Object.keys(projectData),
+      swipeScoresKeys: Object.keys(swipeScores),
+      language,
+      purpose,
+      planType
+    })
+    
     const prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType, language, purpose)
+    
+    console.log('Generated prompt length:', prompt.length)
+    console.log('Prompt preview (first 500 chars):', prompt.substring(0, 500))
 
     // Generate landing page HTML using Gemini AI
     console.log('Generating landing page with AI...')

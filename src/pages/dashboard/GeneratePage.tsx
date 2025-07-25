@@ -191,6 +191,13 @@ export default function GeneratePage() {
         return;
       }
       
+      console.log('Sending request to generate landing page:', {
+        projectData: data,
+        swipeScores,
+        language,
+        purpose
+      });
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/projects-generate`, {
         method: 'POST',
         headers: {
@@ -205,7 +212,9 @@ export default function GeneratePage() {
         }),
       });
 
+      console.log('Response status:', response.status);
       const result = await response.json();
+      console.log('Response data:', result);
       
       if (response.ok) {
         setGeneratedHtml(result.html);
