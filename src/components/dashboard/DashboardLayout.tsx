@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -22,7 +22,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
@@ -31,9 +31,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     checkUser();
-  }, []);
+  }, [checkUser]);
 
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -41,19 +41,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         return;
       }
       setUser(user);
-    } catch (error) {
+    } catch {
       navigate('/login');
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
       showToast('success', 'Signed out successfully');
       navigate('/');
-    } catch (error) {
+    } catch {
       showToast('error', 'Failed to sign out');
     }
   };

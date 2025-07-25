@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SwipeCard } from './SwipeCard';
 import { SwipeImage } from '@/types/project';

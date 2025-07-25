@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, Sparkles, Zap, TreePine } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { createCheckoutSession } from '@/lib/stripe/client';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase/client';
 export default function PricingPage() {
   const [planType, setPlanType] = useState<'individual' | 'team'>('individual');
   const [loading, setLoading] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
 
