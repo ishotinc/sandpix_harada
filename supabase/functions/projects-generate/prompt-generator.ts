@@ -36,7 +36,6 @@ interface SwipeScores {
 }
 
 const COMPREHENSIVE_PROMPT_TEMPLATE = `# 🌐 CRITICAL: OUTPUT LANGUAGE REQUIREMENT
-**ALL generated content MUST be in ENGLISH. This includes:**
 - All text content, headings, and paragraphs
 - Button labels and UI elements
 - Legal notices (Privacy Policy, Terms of Service)
@@ -334,8 +333,6 @@ white-space: nowrap; /* 必ず1行表示 */
 - [ ] アクセシビリティガイドラインに準拠しているか？
 - [ ] Unicode絵文字は一切使用していないか？
 - [ ] 業界特性や制約事項を最優先で確認しているか？
-- [ ] ALL content is in ENGLISH (no Japanese text in output)?
-- [ ] HTML lang attribute is set to "en"?
 `;
 
 // Purpose-specific prompt templates
