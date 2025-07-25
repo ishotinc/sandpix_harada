@@ -51,9 +51,9 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
         />
       )}
       
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 space-y-4 lg:space-y-0">
+      <div className="mb-6 space-y-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Preview Your Landing Page</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Preview Your Landing Page</h1>
           <p className="text-sm md:text-base text-gray-600 mt-2">
             Review your generated landing page and save it when you're satisfied
           </p>
@@ -74,7 +74,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
                 {isPublished ? 'Published' : 'Draft'}
               </span>
               {isPublished && publicUrl && (
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg w-full sm:w-auto overflow-hidden">
+                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg min-w-0 flex-1 sm:flex-initial overflow-hidden">
                   <span className="text-sm text-gray-600 truncate flex-1">
                     {publicUrl}
                   </span>
@@ -103,13 +103,13 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           )}
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <Button
             variant="outline"
             onClick={onRegenerate}
             loading={loading}
             disabled={loading}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Regenerate
@@ -119,7 +119,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
             variant="gradient"
             onClick={onSave}
             disabled={loading || !html}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
           >
             <Save className="w-4 h-4 mr-2" />
             Save Project
@@ -130,7 +130,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
               variant="gradient"
               onClick={onPublish}
               disabled={loading}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
             >
               <Globe className="w-4 h-4 mr-2" />
               Publish

@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Sparkles, Zap, Eye } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Link } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ export function Hero() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in leading-tight">
             Create{' '}
             <span className="text-gradient bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               Stunning
@@ -25,49 +25,22 @@ export function Hero() {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto animate-slide-up">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto animate-slide-up px-4 sm:px-0">
             Swipe through designs, let AI create your perfect landing page, and publish instantly. 
             No coding required, just beautiful results.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-slide-up">
-            <Link to="/register">
-              <Button variant="gradient" size="lg" className="px-8 py-4 text-lg">
+          <div className="flex justify-center mb-8 sm:mb-12 animate-slide-up px-4">
+            <Link to="/register" className="w-full sm:w-auto">
+              <Button variant="gradient" size="lg" className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg">
                 Start Creating Free
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
             </Link>
-            <a href="#demo">
-              <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
-                <Eye className="w-5 h-5 mr-2" />
-                Watch Demo
-              </Button>
-            </a>
           </div>
         </div>
 
-        {/* Hero Image/Demo */}
-        <div className="mt-16 lg:mt-24 animate-fade-in">
-          <div className="relative max-w-6xl mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl -z-10"></div>
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 lg:p-8">
-              <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                    Interactive Demo Coming Soon
-                  </h3>
-                  <p className="text-gray-500">
-                    See how easy it is to create beautiful landing pages
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

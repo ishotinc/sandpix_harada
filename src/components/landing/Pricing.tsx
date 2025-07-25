@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Sparkles, Crown, ExternalLink } from 'lucide-react';
+import { Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ProductCard } from '@/components/stripe/ProductCard';
 import { stripeProducts } from '@/stripe-config';

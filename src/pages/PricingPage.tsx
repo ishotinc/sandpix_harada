@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, Sparkles, Zap, TreePine } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { createCheckoutSession } from '@/lib/stripe/client';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -11,15 +11,22 @@ import { supabase } from '@/lib/supabase/client';
 export default function PricingPage() {
   const [planType, setPlanType] = useState<'individual' | 'team'>('individual');
   const [loading, setLoading] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   useEffect(() => {
     const checkUser = async () => {
-      if (!supabase) return;
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      try {
+        if (!supabase) {
+          console.log('Supabase not configured, continuing without auth');
+          return;
+        }
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Error checking user:', error);
+      }
     };
     checkUser();
   }, []);
@@ -54,7 +61,7 @@ export default function PricingPage() {
     }
 
     if (plan === 'max') {
-      showToast('info', 'Max plan coming soon! Contact us for early access.');
+      window.open('https://forms.gle/tzhE2NFkAsZj1cPQ6', '_blank');
     }
   };
 
@@ -263,7 +270,7 @@ export default function PricingPage() {
 
         {/* Footer */}
         <div className="mt-16 text-center text-sm text-gray-600">
-          <p>Need help choosing? <Link to="/contact" className="text-blue-600 hover:underline">Contact our sales team</Link></p>
+          <p>Need help choosing? <a href="https://forms.gle/tzhE2NFkAsZj1cPQ6" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Contact our sales team</a></p>
         </div>
       </div>
     </div>

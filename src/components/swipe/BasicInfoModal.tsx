@@ -6,10 +6,20 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/ToastProvider';
 
+interface ProjectFormData {
+  service_name: string;
+  service_description: string;
+  redirect_url: string;
+  main_copy: string;
+  cta_text: string;
+  service_achievements: string;
+}
+
 interface BasicInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ProjectFormData) => void;
+  initialData?: Partial<ProjectFormData>;
 }
 
 export function BasicInfoModal({ isOpen, onClose, onSubmit }: BasicInfoModalProps) {

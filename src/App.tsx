@@ -11,6 +11,7 @@ import { Providers } from "./components/providers/Providers";
 import { Header } from "./components/landing/Header";
 import { Hero } from "./components/landing/Hero";
 import { Features } from "./components/landing/Features";
+import { Showcase } from "./components/landing/Showcase";
 import { HowItWorks } from "./components/landing/HowItWorks";
 import { CTA } from "./components/landing/CTA";
 import { Footer } from "./components/landing/Footer";
@@ -43,9 +44,8 @@ function LandingPage() {
       <main>
         <Hero />
         <Features />
+        <Showcase />
         <HowItWorks />
-        <Testimonials />
-        <Pricing />
         <CTA />
       </main>
       <Footer />

@@ -21,9 +21,14 @@ export function createGeminiClient(apiKey: string) {
     async generateLandingPage(prompt: string): Promise<string> {
       try {
         console.log('Generating landing page with Gemini AI...');
+        console.log('Prompt length sent to Gemini:', prompt.length);
+        
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const generatedText = response.text();
+        
+        console.log('Gemini response length:', generatedText.length);
+        console.log('Gemini response preview (first 200 chars):', generatedText.substring(0, 200));
         
         // Extract HTML from the response
         // Gemini might wrap the HTML in markdown code blocks
