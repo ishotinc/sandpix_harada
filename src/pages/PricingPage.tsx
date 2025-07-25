@@ -17,9 +17,16 @@ export default function PricingPage() {
 
   useEffect(() => {
     const checkUser = async () => {
-      if (!supabase) return;
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      try {
+        if (!supabase) {
+          console.log('Supabase not configured, continuing without auth');
+          return;
+        }
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Error checking user:', error);
+      }
     };
     checkUser();
   }, []);
