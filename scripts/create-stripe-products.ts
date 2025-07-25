@@ -15,7 +15,7 @@ async function createProducts() {
     // Create Plus Plan product
     const product = await stripe.products.create({
       name: 'SandPix Plus Plan',
-      description: '5 projects, 50 generations/day, no footer logo',
+      description: 'For everyday productivity - 5 projects, 50 generations/day, no footer logo',
       metadata: {
         plan_type: 'plus'
       }
@@ -23,11 +23,11 @@ async function createProducts() {
 
     console.log('Product created:', product.id);
 
-    // Create price
+    // Create price for $20/month USD
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: 2980,
-      currency: 'jpy',
+      unit_amount: 2000, // $20.00 in cents
+      currency: 'usd',
       recurring: {
         interval: 'month'
       },
@@ -40,8 +40,8 @@ async function createProducts() {
     console.log('\n========================================');
     console.log('Add these to your .env.local file:');
     console.log('========================================');
-    console.log(`NEXT_PUBLIC_STRIPE_PLUS_PRODUCT_ID=${product.id}`);
-    console.log(`NEXT_PUBLIC_STRIPE_PLUS_PRICE_ID=${price.id}`);
+    console.log(`VITE_STRIPE_PLUS_PRODUCT_ID=${product.id}`);
+    console.log(`VITE_STRIPE_PLUS_PRICE_ID=${price.id}`);
     console.log('========================================\n');
 
   } catch (error) {
