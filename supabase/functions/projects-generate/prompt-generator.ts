@@ -39,13 +39,10 @@ const COMPREHENSIVE_PROMPT_TEMPLATE = `# 🌐 CRITICAL: OUTPUT LANGUAGE REQUIREM
 - All text content, headings, and paragraphs
 - Button labels and UI elements
 - Legal notices (Privacy Policy, Terms of Service)
-- Meta tags and HTML attributes (use lang="en")
 - Comments in code
 - Alt text for images
 - Error messages
 - ANY text that will be visible to users
-
-**The instructions below are in Japanese for internal use only. The OUTPUT must be 100% English.**
 
 ---
 
