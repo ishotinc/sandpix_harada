@@ -7,6 +7,11 @@ export interface Profile {
   personal_name: string;
   personal_bio: string;
   achievements: string;
+  plan_type: 'free' | 'plus';
+  daily_generation_count: number;
+  daily_generation_reset_at: string | null;
+  project_count: number;
+  stripe_subscription_id: string | null;
   created_at: string;
   updated_at: string;
 }

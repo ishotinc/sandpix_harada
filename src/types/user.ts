@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   plan_type: 'free' | 'plus';
+  is_admin: boolean;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   regenerate_count: number;
@@ -19,5 +20,10 @@ export interface UserWithProfile extends User {
     personal_name: string;
     personal_bio: string;
     achievements: string;
+    plan_type: 'free' | 'plus';
+    daily_generation_count: number;
+    daily_generation_reset_at: string | null;
+    project_count: number;
+    stripe_subscription_id: string | null;
   };
 }

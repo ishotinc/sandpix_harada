@@ -52,7 +52,7 @@ export function SwipeCard({ image, onSwipe, isAnimating }: SwipeCardProps) {
         whileHover={{ scale: isAnimating ? 1 : 1.02 }}
         whileDrag={{ scale: 1.05 }}
         transition={{
-          scale: { type: 'spring', stiffness: 300, damping: 30 },
+          scale: { duration: 0.2, ease: 'easeOut' },
         }}
       >
         {/* Image */}

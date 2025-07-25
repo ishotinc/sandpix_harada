@@ -38,7 +38,18 @@
       "Bash(npm run typecheck:*)",
       "Bash(npm run:*)",
       "mcp__gemini-cli__ping",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(supabase db migrations:*)",
+      "Bash(supabase migration:*)",
+      "Bash(supabase db:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(mv:*)",
+      "Bash(cat:*)",
+      "Bash(rg:*)",
+      "Bash(diff:*)"
     ],
     "deny": [
       "Bash(sudo:*)",

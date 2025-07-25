@@ -8,6 +8,7 @@ interface ProjectData {
   service_achievements?: string;
   custom_head?: string;
   custom_body?: string;
+  language?: 'ja' | 'en';
 }
 
 interface Profile {
@@ -34,7 +35,7 @@ interface SwipeScores {
   approachable_score: number;
 }
 
-const DEFAULT_PROMPT = `# 🌐 CRITICAL: OUTPUT LANGUAGE REQUIREMENT
+const COMPREHENSIVE_PROMPT_TEMPLATE = `# 🌐 CRITICAL: OUTPUT LANGUAGE REQUIREMENT
 **ALL generated content MUST be in ENGLISH. This includes:**
 - All text content, headings, and paragraphs
 - Button labels and UI elements
@@ -337,11 +338,118 @@ white-space: nowrap; /* 必ず1行表示 */
 - [ ] HTML lang attribute is set to "en"?
 `;
 
+// Purpose-specific prompt templates
+const PURPOSE_TEMPLATES = {
+  ja: {
+    product: `製品販売用のランディングページを生成してください。
+    以下の要素を必ず含めてください：
+    - ヒーローセクション（製品名、キャッチコピー、CTA）
+    - 製品の特徴（最低6つ以上）
+    - 価格プラン
+    - お客様の声
+    - FAQ
+    - 問い合わせフォーム`,
+    
+    brand: `ブランド・企業紹介用のランディングページを生成してください。
+    以下の要素を必ず含めてください：
+    - ヒーローセクション（企業名、ビジョン、CTA）
+    - 企業理念とミッション
+    - 企業の強み（最低5つ以上）
+    - 実績と信頼性の証明
+    - チームメンバー紹介
+    - お問い合わせセクション`,
+    
+    service: `サービス紹介用のランディングページを生成してください。
+    以下の要素を必ず含めてください：
+    - ヒーローセクション（サービス名、価値提案、CTA）
+    - サービスの特徴と利点（最低6つ以上）
+    - 導入事例またはケーススタディ
+    - 料金プラン（該当する場合）
+    - FAQ
+    - 無料相談・デモの申し込みセクション`,
+    
+    lead: `リード獲得用のランディングページを生成してください。
+    以下の要素を必ず含めてください：
+    - ヒーローセクション（提供価値、リード獲得フォーム）
+    - 提供する資料・情報の価値（最低5つのポイント）
+    - 資料の内容プレビュー
+    - 読者の声・推薦文
+    - よくある質問
+    - プライバシーポリシーへのリンク`,
+    
+    event: `イベントプロモーション用のランディングページを生成してください。
+    以下の要素を必ず含めてください：
+    - ヒーローセクション（イベント名、日時、場所、CTA）
+    - イベントの概要と目的
+    - プログラム・スケジュール
+    - 登壇者・講師紹介
+    - 参加メリット（最低5つ）
+    - 参加申し込みセクション
+    - アクセス情報`
+  },
+  en: {
+    product: `Generate a product sales landing page.
+    Include the following elements:
+    - Hero section (product name, tagline, CTA)
+    - Product features (at least 6)
+    - Pricing plans
+    - Customer testimonials
+    - FAQ
+    - Contact form`,
+    
+    brand: `Generate a brand/company landing page.
+    Include the following elements:
+    - Hero section (company name, vision, CTA)
+    - Company mission and values
+    - Company strengths (at least 5)
+    - Achievements and credibility proof
+    - Team member introduction
+    - Contact section`,
+    
+    service: `Generate a service introduction landing page.
+    Include the following elements:
+    - Hero section (service name, value proposition, CTA)
+    - Service features and benefits (at least 6)
+    - Case studies or success stories
+    - Pricing plans (if applicable)
+    - FAQ
+    - Free consultation/demo request section`,
+    
+    lead: `Generate a lead generation landing page.
+    Include the following elements:
+    - Hero section (offer value, lead capture form)
+    - Value of provided materials/information (at least 5 points)
+    - Material content preview
+    - Reader testimonials
+    - Frequently asked questions
+    - Privacy policy link`,
+    
+    event: `Generate an event promotion landing page.
+    Include the following elements:
+    - Hero section (event name, date, location, CTA)
+    - Event overview and purpose
+    - Program/schedule
+    - Speaker/instructor introduction
+    - Participation benefits (at least 5)
+    - Registration section
+    - Access information`
+  }
+};
+
 export function generateFinalPrompt(
   projectData: ProjectData,
   profileData: Profile,
-  swipeScores: SwipeScores
+  swipeScores: SwipeScores,
+  planType: 'free' | 'plus' = 'free',
+  language: 'ja' | 'en' = 'en',
+  purpose: string = 'product'
 ): string {
+  // Language instruction for the prompt
+  const languageInstruction =
+    language === 'ja'
+      ? 'Please generate ALL content in Japanese. All text, headings, buttons, and UI elements must be in Japanese.'
+      : 'Please generate ALL content in English. All text, headings, buttons, and UI elements must be in English.';
+
   // スワイプスコアをテキスト形式に変換
   const scoresText = Object.entries(swipeScores)
     .map(([key, value]) => `- ${key}: ${value}`)
@@ -370,9 +478,43 @@ export function generateFinalPrompt(
     achievements: profileData.achievements || ''
   };
   
-  // テンプレートに変数を埋め込み
-  let prompt = DEFAULT_PROMPT
-    .replace(/\${swipeScores}/g, scoresText);
+  // Get purpose-specific template
+  const purposeTemplate = PURPOSE_TEMPLATES[language][purpose] || PURPOSE_TEMPLATES[language]['product'];
+  
+  // Determine which comprehensive template to use based on language
+  let basePrompt = `# 🌐 LANGUAGE REQUIREMENT
+${languageInstruction}
+
+${COMPREHENSIVE_PROMPT_TEMPLATE}`;
+  
+  // For Japanese output, modify the language requirement section
+  if (language === 'ja') {
+    basePrompt = basePrompt.replace(
+      '**ALL generated content MUST be in ENGLISH. This includes:**',
+      '**ALL generated content MUST be in JAPANESE. This includes:**'
+    ).replace(
+      '**The instructions below are in Japanese for internal use only. The OUTPUT must be 100% English.**',
+      '**The instructions below are in Japanese for internal use only. The OUTPUT must be 100% Japanese.**'
+    ).replace(
+      '- ALL content is in ENGLISH (no Japanese text in output)?',
+      '- ALL content is in JAPANESE?'
+    ).replace(
+      '- HTML lang attribute is set to "en"?',
+      '- HTML lang attribute is set to "ja"?'
+    ).replace(
+      '<html lang="en">',
+      '<html lang="ja">'
+    );
+  }
+  
+  // Insert purpose-specific template
+  let prompt = basePrompt.replace(
+    '## ページ目的別構成',
+    `## ページ目的別構成\n${purposeTemplate}\n\n## 元の目的別構成（参考）`
+  );
+  
+  // Replace swipe scores
+  prompt = prompt.replace(/\${swipeScores}/g, scoresText);
     
   // projectDataの置換
   Object.entries(camelProjectData).forEach(([key, value]) => {
@@ -392,6 +534,45 @@ export function generateFinalPrompt(
     const regex = new RegExp(`\\$\\{profileData\\.${key}(\\s*\\|\\|\\s*'[^']*')?\\}`, 'g');
     prompt = prompt.replace(regex, value || '');
   });
+  
+  // Inject footer for free users
+  if (planType === 'free') {
+    // Add padding-bottom to body to ensure content is not hidden behind fixed footer
+    prompt = prompt.replace(
+      '</body>',
+      `
+<!-- Footer for free users -->
+<div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 16px 0; text-align: center; z-index: 9999; box-shadow: 0 -4px 12px rgba(0,0,0,0.15);">
+  <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+    <!-- Logo SVG -->
+    <svg width="32" height="32" viewBox="0 0 100 100" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+      <circle cx="50" cy="50" r="45" fill="#fff" opacity="0.9"/>
+      <path d="M30 70 Q50 20 70 70" stroke="#764ba2" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="8" fill="#667eea"/>
+    </svg>
+    <!-- Text with styled Sandpix name -->
+    <div style="font-size: 18px; font-weight: 600; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+      Made with 
+      <a href="https://sandpix-harada.vercel.app/" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 700; background: rgba(251, 191, 36, 0.2); padding: 2px 8px; border-radius: 4px; margin: 0 4px; transition: all 0.3s ease;">
+        SANDPIX
+      </a>
+    </div>
+  </div>
+</div>
+<style>
+  /* Ensure content doesn't hide behind footer */
+  body {
+    padding-bottom: 80px !important;
+  }
+  /* Hover effect for the link */
+  a[href="https://sandpix-harada.vercel.app/"]:hover {
+    background: rgba(251, 191, 36, 0.4) !important;
+    transform: translateY(-1px);
+  }
+</style>
+</body>`
+    );
+  }
   
   return prompt;
 }

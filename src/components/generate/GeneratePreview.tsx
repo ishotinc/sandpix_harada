@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Save, RefreshCw, Eye, Code, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
+import { Save, RefreshCw, Eye, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
+import { UpgradeBanner } from '@/components/dashboard/UpgradeBanner';
+import { useProfile } from '@/hooks/useProfile';
 
 interface GeneratePreviewProps {
   html: string;
@@ -12,13 +14,21 @@ interface GeneratePreviewProps {
   projectId?: string;
   isPublished?: boolean;
   onPublish?: () => void;
+  showGenerationLimitBanner?: boolean;
 }
 
-export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish }: GeneratePreviewProps) {
-  const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
+export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish, showGenerationLimitBanner = false }: GeneratePreviewProps) {
   const [copySuccess, setCopySuccess] = useState('');
+  const [showBanner, setShowBanner] = useState(showGenerationLimitBanner);
+  const { profile } = useProfile();
   
   const publicUrl = projectId ? `${window.location.origin}/p/${projectId}` : '';
+  
+  useEffect(() => {
+    if (showGenerationLimitBanner) {
+      setShowBanner(true);
+    }
+  }, [showGenerationLimitBanner]);
   
   const copyToClipboard = async () => {
     try {
@@ -32,15 +42,23 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {profile && showBanner && profile.plan_type === 'free' && (
+        <UpgradeBanner 
+          planType={profile.plan_type}
+          reason="generation_limit"
+          onDismiss={() => setShowBanner(false)}
+        />
+      )}
+      
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 space-y-4 lg:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Preview Your Landing Page</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Preview Your Landing Page</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-2">
             Review your generated landing page and save it when you're satisfied
           </p>
           {projectId && (
-            <div className="mt-3 flex items-center space-x-3">
+            <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
                   isPublished
@@ -56,13 +74,13 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
                 {isPublished ? 'Published' : 'Draft'}
               </span>
               {isPublished && publicUrl && (
-                <div className="flex items-center space-x-2 bg-gray-50 px-3 py-1 rounded-lg">
-                  <span className="text-sm text-gray-600">
+                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg w-full sm:w-auto overflow-hidden">
+                  <span className="text-sm text-gray-600 truncate flex-1">
                     {publicUrl}
                   </span>
                   <button
                     onClick={copyToClipboard}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                    className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0"
                     title="Copy URL"
                   >
                     <Copy className="w-4 h-4" />
@@ -71,13 +89,13 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
                     href={publicUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                    className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0"
                     title="Open in new tab"
                   >
                     <ExternalLink className="w-4 h-4" />
                   </a>
                   {copySuccess && (
-                    <span className="text-xs text-green-600 ml-2">{copySuccess}</span>
+                    <span className="text-xs text-green-600 ml-2 flex-shrink-0">{copySuccess}</span>
                   )}
                 </div>
               )}
@@ -85,37 +103,13 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           )}
         </div>
         
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('preview')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'preview'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Eye className="w-4 h-4 mr-1 inline" />
-              Preview
-            </button>
-            <button
-              onClick={() => setViewMode('code')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'code'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Code className="w-4 h-4 mr-1 inline" />
-              Code
-            </button>
-          </div>
-
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <Button
             variant="outline"
             onClick={onRegenerate}
             loading={loading}
             disabled={loading}
+            className="w-full sm:w-auto"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Regenerate
@@ -125,6 +119,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
             variant="gradient"
             onClick={onSave}
             disabled={loading || !html}
+            className="w-full sm:w-auto"
           >
             <Save className="w-4 h-4 mr-2" />
             Save Project
@@ -135,6 +130,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
               variant="gradient"
               onClick={onPublish}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               <Globe className="w-4 h-4 mr-2" />
               Publish
@@ -154,20 +150,12 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           </div>
         ) : html ? (
           <div className="h-[800px]">
-            {viewMode === 'preview' ? (
-              <iframe
-                srcDoc={html}
-                className="w-full h-full border-0"
-                title="Landing Page Preview"
-                sandbox="allow-scripts allow-same-origin"
-              />
-            ) : (
-              <div className="h-full overflow-auto">
-                <pre className="p-6 text-sm bg-gray-50 h-full overflow-auto">
-                  <code>{html}</code>
-                </pre>
-              </div>
-            )}
+            <iframe
+              srcDoc={html}
+              className="w-full h-full border-0"
+              title="Landing Page Preview"
+              sandbox="allow-scripts allow-same-origin"
+            />
           </div>
         ) : (
           <div className="flex items-center justify-center h-96">

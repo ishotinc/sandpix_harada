@@ -177,6 +177,21 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Get user profile for additional context
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('user_id', user.id)
+      .single();
+
+    // Update profile with stripe customer ID if not already set
+    if (profile && !profile.stripe_customer_id) {
+      await supabase
+        .from('profiles')
+        .update({ stripe_customer_id: customerId })
+        .eq('user_id', user.id);
+    }
+
     // create Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -190,6 +205,11 @@ Deno.serve(async (req) => {
       mode,
       success_url,
       cancel_url,
+      client_reference_id: user.id, // Link to Supabase user
+      metadata: {
+        user_id: user.id,
+        plan_type: 'plus' // Assuming checkout is for Plus plan
+      }
     });
 
     console.log(`Created checkout session ${session.id} for customer ${customerId}`);

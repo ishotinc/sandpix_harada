@@ -6,6 +6,7 @@ export interface Database {
           id: string;
           email: string;
           plan_type: 'free' | 'plus';
+          is_admin: boolean;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
           regenerate_count: number;
@@ -17,6 +18,7 @@ export interface Database {
           id?: string;
           email: string;
           plan_type?: 'free' | 'plus';
+          is_admin?: boolean;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
           regenerate_count?: number;
@@ -28,6 +30,7 @@ export interface Database {
           id?: string;
           email?: string;
           plan_type?: 'free' | 'plus';
+          is_admin?: boolean;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
           regenerate_count?: number;
@@ -46,6 +49,11 @@ export interface Database {
           personal_name: string;
           personal_bio: string;
           achievements: string;
+          plan_type: 'free' | 'plus';
+          daily_generation_count: number;
+          daily_generation_reset_at: string | null;
+          project_count: number;
+          stripe_subscription_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -58,6 +66,11 @@ export interface Database {
           personal_name?: string;
           personal_bio?: string;
           achievements?: string;
+          plan_type?: 'free' | 'plus';
+          daily_generation_count?: number;
+          daily_generation_reset_at?: string | null;
+          project_count?: number;
+          stripe_subscription_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -70,6 +83,11 @@ export interface Database {
           personal_name?: string;
           personal_bio?: string;
           achievements?: string;
+          plan_type?: 'free' | 'plus';
+          daily_generation_count?: number;
+          daily_generation_reset_at?: string | null;
+          project_count?: number;
+          stripe_subscription_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -81,6 +99,7 @@ export interface Database {
           service_name: string;
           redirect_url: string;
           purpose: 'product' | 'service' | 'brand' | 'lead' | 'event';
+          language: 'ja' | 'en';
           service_description: string;
           main_copy: string;
           cta_text: string;
@@ -99,6 +118,7 @@ export interface Database {
           service_name: string;
           redirect_url?: string;
           purpose?: 'product' | 'service' | 'brand' | 'lead' | 'event';
+          language?: 'ja' | 'en';
           service_description?: string;
           main_copy?: string;
           cta_text?: string;
@@ -117,6 +137,7 @@ export interface Database {
           service_name?: string;
           redirect_url?: string;
           purpose?: 'product' | 'service' | 'brand' | 'lead' | 'event';
+          language?: 'ja' | 'en';
           service_description?: string;
           main_copy?: string;
           cta_text?: string;
