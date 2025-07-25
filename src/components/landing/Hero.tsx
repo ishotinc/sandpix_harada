@@ -45,19 +45,6 @@ export function Hero() {
               </Button>
             </a>
           </div>
-
-          {/* Social Proof */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-gray-500 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-yellow-500" />
-              <span>10,000+ Landing Pages Created</span>
-            </div>
-            <div className="hidden sm:block w-px h-6 bg-gray-300"></div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-500" />
-              <span>5-Star AI Technology</span>
-            </div>
-          </div>
         </div>
 
         {/* Hero Image/Demo */}

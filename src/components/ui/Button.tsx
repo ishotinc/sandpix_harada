@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variants = {
   primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl',
   secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-900',
-  gradient: 'brand-gradient text-white shadow-lg hover:shadow-xl relative overflow-hidden',
+  gradient: 'bg-[#0071E3] hover:bg-[#0051C3] text-white shadow-lg hover:shadow-xl',
   outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white',
   ghost: 'hover:bg-gray-100 text-gray-700',
 };
