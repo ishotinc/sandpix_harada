@@ -29,12 +29,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const { showToast } = useToast();
 
-  useEffect(() => {
-    checkUser();
-  }, [checkUser]);
-
   const checkUser = useCallback(async () => {
     try {
+      // Check if Supabase is configured
+      if (!supabase) {
+        showToast('error', 'Authentication service is not configured. Please contact support.');
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate('/login');
@@ -46,10 +49,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, showToast]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const handleSignOut = async () => {
     try {
+      if (!supabase) {
+        showToast('error', 'Authentication service is not configured');
+        return;
+      }
       await supabase.auth.signOut();
       showToast('success', 'Signed out successfully');
       navigate('/');

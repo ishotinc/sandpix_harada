@@ -1,3 +1,5 @@
+import { DEFAULT_PROMPT_TEMPLATE } from './default-prompt.ts';
+
 interface ProjectData {
   service_name: string;
   redirect_url?: string;
@@ -35,7 +37,8 @@ interface SwipeScores {
   approachable_score: number;
 }
 
-const COMPREHENSIVE_PROMPT_TEMPLATE = `# 🌐 CRITICAL: OUTPUT LANGUAGE REQUIREMENT
+// 既存のテンプレートを削除し、新しい関数で置き換える予定
+const COMPREHENSIVE_PROMPT_TEMPLATE_OLD = `# 🌐 CRITICAL: OUTPUT LANGUAGE REQUIREMENT
 - All text content, headings, and paragraphs
 - Button labels and UI elements
 - Legal notices (Privacy Policy, Terms of Service)
@@ -438,97 +441,48 @@ export function generateFinalPrompt(
   language: 'ja' | 'en' = 'en',
   purpose: string = 'product'
 ): string {
-  // Language instruction for the prompt
-  const languageInstruction =
-    language === 'ja'
-      ? 'Please generate ALL content in Japanese. All text, headings, buttons, and UI elements must be in Japanese.'
-      : 'Please generate ALL content in English. All text, headings, buttons, and UI elements must be in English.';
+  // 言語設定
+  const languageCode = language === 'ja' ? 'ja' : 'en';
+  const languageInstruction = language === 'ja' 
+    ? '日本語' 
+    : '英語';
 
   // スワイプスコアをテキスト形式に変換
   const scoresText = Object.entries(swipeScores)
     .map(([key, value]) => `- ${key}: ${value}`)
     .join('\n');
-  
-  // Convert snake_case to camelCase for projectData
-  const camelProjectData = {
-    serviceName: projectData.service_name || '',
-    serviceDescription: projectData.service_description || '',
-    mainCopy: projectData.main_copy || '',
-    ctaText: projectData.cta_text || '',
-    redirectUrl: projectData.redirect_url || '',
-    serviceAchievements: projectData.service_achievements || '',
-    customHead: projectData.custom_head || '',
-    customBody: projectData.custom_body || '',
-    purpose: projectData.purpose || ''
-  };
-  
-  // プロファイルデータのマッピング
-  const mappedProfileData = {
-    companyName: profileData.company_name || '',
-    companyAchievements: profileData.company_achievements || '',
-    contactInfo: profileData.contact_info || '',
-    personalName: profileData.personal_name || '',
-    personalBio: profileData.personal_bio || '',
-    achievements: profileData.achievements || ''
-  };
-  
-  // Get purpose-specific template
-  const purposeTemplate = PURPOSE_TEMPLATES[language][purpose] || PURPOSE_TEMPLATES[language]['product'];
-  
-  // Determine which comprehensive template to use based on language
-  let basePrompt = `# 🌐 LANGUAGE REQUIREMENT
-${languageInstruction}
 
-${COMPREHENSIVE_PROMPT_TEMPLATE}`;
-  
-  // For Japanese output, modify the language requirement section
-  if (language === 'ja') {
-    basePrompt = basePrompt.replace(
-      '**ALL generated content MUST be in ENGLISH. This includes:**',
-      '**ALL generated content MUST be in JAPANESE. This includes:**'
-    ).replace(
-      '**The instructions below are in Japanese for internal use only. The OUTPUT must be 100% English.**',
-      '**The instructions below are in Japanese for internal use only. The OUTPUT must be 100% Japanese.**'
-    ).replace(
-      '- ALL content is in ENGLISH (no Japanese text in output)?',
-      '- ALL content is in JAPANESE?'
-    ).replace(
-      '- HTML lang attribute is set to "en"?',
-      '- HTML lang attribute is set to "ja"?'
-    ).replace(
-      '<html lang="en">',
-      '<html lang="ja">'
-    );
-  }
-  
-  // Insert purpose-specific template
-  let prompt = basePrompt.replace(
-    '## ページ目的別構成',
-    `## ページ目的別構成\n${purposeTemplate}\n\n## 元の目的別構成（参考）`
-  );
-  
-  // Replace swipe scores
-  prompt = prompt.replace(/\${swipeScores}/g, scoresText);
-    
-  // projectDataの置換
-  Object.entries(camelProjectData).forEach(([key, value]) => {
-    const regex = new RegExp(`\\$\\{projectData\\.${key}(\\s*\\|\\|\\s*'[^']*')?\\}`, 'g');
-    prompt = prompt.replace(regex, (match, defaultValue) => {
-      if (value) return value;
-      if (defaultValue) {
-        const defaultStr = defaultValue.match(/'([^']*)'/)?.[1] || '';
-        return defaultStr;
-      }
-      return '';
-    });
-  });
-  
-  // profileDataの置換
-  Object.entries(mappedProfileData).forEach(([key, value]) => {
-    const regex = new RegExp(`\\$\\{profileData\\.${key}(\\s*\\|\\|\\s*'[^']*')?\\}`, 'g');
-    prompt = prompt.replace(regex, value || '');
-  });
-  
+  // プロンプトテンプレートを使用して変数を置換
+  let prompt = DEFAULT_PROMPT_TEMPLATE;
+
+  // 言語関連の置換
+  prompt = prompt.replace(/{language}/g, languageCode);
+  prompt = prompt.replace(/{language_instruction}/g, languageInstruction);
+
+  // プロジェクト情報の置換
+  prompt = prompt.replace(/{service_name}/g, projectData.service_name || '');
+  prompt = prompt.replace(/{service_description}/g, projectData.service_description || '');
+  prompt = prompt.replace(/{main_copy}/g, projectData.main_copy || '');
+  prompt = prompt.replace(/{cta_text}/g, projectData.cta_text || '');
+  prompt = prompt.replace(/{redirect_url}/g, projectData.redirect_url || '');
+  prompt = prompt.replace(/{service_achievements}/g, projectData.service_achievements || '');
+  prompt = prompt.replace(/{purpose}/g, purpose || '');
+
+  // プロフィール情報の置換
+  prompt = prompt.replace(/{company_name}/g, profileData.company_name || '');
+  prompt = prompt.replace(/{company_achievements}/g, profileData.company_achievements || '');
+  prompt = prompt.replace(/{contact_info}/g, profileData.contact_info || '');
+  prompt = prompt.replace(/{personal_name}/g, profileData.personal_name || '');
+  prompt = prompt.replace(/{personal_bio}/g, profileData.personal_bio || '');
+  prompt = prompt.replace(/{achievements}/g, profileData.achievements || '');
+
+  // カスタムコードの置換
+  prompt = prompt.replace(/{custom_head}/g, projectData.custom_head || '');
+  prompt = prompt.replace(/{custom_body}/g, projectData.custom_body || '');
+
+  // スワイプスコアの置換
+  prompt = prompt.replace(/{swipe_scores}/g, scoresText);
+
   // Inject footer for free users
   if (planType === 'free') {
     // Add padding-bottom to body to ensure content is not hidden behind fixed footer
@@ -567,6 +521,6 @@ ${COMPREHENSIVE_PROMPT_TEMPLATE}`;
 </body>`
     );
   }
-  
+
   return prompt;
 }
