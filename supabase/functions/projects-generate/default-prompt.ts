@@ -37,7 +37,7 @@ three.js,tailwind css,framer motion,Heroicons cdn で限界を超えたデザイ
 アニメーションは派手に、でもユーザビリティは最優先。全デバイスで文字が完璧に読めるように工夫してください。
 
 ## ランディングページ情報
-{}が空欄の場合、ランディングページではその要素について記載を控えてください。
+**重要**: 空白または未記入の項目は、ランディングページに一切記載・表示しないでください。
 
 ### サービス情報
 - サービス名: {service_name}
@@ -56,8 +56,8 @@ three.js,tailwind css,framer motion,Heroicons cdn で限界を超えたデザイ
 - 実績: {achievements}
 
 ### カスタムコード
-{custom_head}
-{custom_body}
+カスタムhead内容: {custom_head}
+カスタムbody内容: {custom_body}
 
 ## ページ目的
 目的: {purpose}

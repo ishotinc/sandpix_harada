@@ -476,9 +476,18 @@ export function generateFinalPrompt(
   prompt = prompt.replace(/{personal_bio}/g, profileData.personal_bio || '');
   prompt = prompt.replace(/{achievements}/g, profileData.achievements || '');
 
-  // カスタムコードの置換
-  prompt = prompt.replace(/{custom_head}/g, projectData.custom_head || '');
-  prompt = prompt.replace(/{custom_body}/g, projectData.custom_body || '');
+  // カスタムコードの置換（空の場合は行全体を削除）
+  if (projectData.custom_head && projectData.custom_head.trim()) {
+    prompt = prompt.replace(/カスタムhead内容: {custom_head}/g, `カスタムhead内容: ${projectData.custom_head}`);
+  } else {
+    prompt = prompt.replace(/カスタムhead内容: {custom_head}\n?/g, '');
+  }
+  
+  if (projectData.custom_body && projectData.custom_body.trim()) {
+    prompt = prompt.replace(/カスタムbody内容: {custom_body}/g, `カスタムbody内容: ${projectData.custom_body}`);
+  } else {
+    prompt = prompt.replace(/カスタムbody内容: {custom_body}\n?/g, '');
+  }
 
   // スワイプスコアの置換
   prompt = prompt.replace(/{swipe_scores}/g, scoresText);
