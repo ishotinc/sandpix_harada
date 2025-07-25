@@ -82,10 +82,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white shadow-xl">
           <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 brand-gradient rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 text-gradient rounded-lg flex items-center justify-center bg-gray-100">
+                <Sparkles className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Sandpix</span>
+              <span className="text-xl font-bold text-gradient">Sandpix</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -131,10 +131,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
           <div className="flex h-16 items-center px-6 border-b border-gray-200">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 brand-gradient rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 text-gradient rounded-lg flex items-center justify-center bg-gray-100">
+                <Sparkles className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Sandpix</span>
+              <span className="text-xl font-bold text-gradient">Sandpix</span>
             </Link>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-2">
@@ -180,10 +180,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Menu className="w-5 h-5" />
             </button>
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 brand-gradient rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 text-gradient rounded-lg flex items-center justify-center bg-gray-100">
+                <Sparkles className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Sandpix</span>
+              <span className="text-xl font-bold text-gradient">Sandpix</span>
             </Link>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
