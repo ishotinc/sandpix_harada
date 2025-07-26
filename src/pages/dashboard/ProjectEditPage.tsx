@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui/ToastProvider';
 import { Project } from '../../types/project';
 import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
+import { BillingModal } from '../../components/ui/BillingModal';
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ export default function ProjectEditPage() {
   const [regenerating, setRegenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
   const [copied, setCopied] = useState(false);
+  const [showBillingModal, setShowBillingModal] = useState(false);
   
   const [formData, setFormData] = useState({
     service_name: '',
@@ -110,16 +112,74 @@ export default function ProjectEditPage() {
   };
 
   const handleChange = (field: string, value: string | boolean) => {
+    if (field === 'is_published' && value === true) {
+      // Show billing modal when trying to publish
+      setShowBillingModal(true);
+      return;
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handlePublishWithLogo = async () => {
+    setFormData(prev => ({ ...prev, is_published: true }));
+    setShowBillingModal(false);
+    await handleSave();
+  };
+
+  const handleUpgradeClick = () => {
+    setShowBillingModal(false);
+    navigate('/pricing');
+  };
+
   const copyPublicUrl = async () => {
-    if (project?.is_published) {
+    console.log('copyPublicUrl called');
+    console.log('project?.is_published:', project?.is_published);
+    console.log('formData.is_published:', formData.is_published);
+    
+    if (!project?.is_published && !formData.is_published) {
+      console.log('Project not published, showing error');
+      showToast('error', 'Project must be published to copy URL');
+      return;
+    }
+
+    try {
       const url = `${window.location.origin}/p/${project.id}`;
-      await navigator.clipboard.writeText(url);
+      console.log('Attempting to copy URL:', url);
+      console.log('navigator.clipboard available:', !!navigator.clipboard);
+      console.log('isSecureContext:', window.isSecureContext);
+      
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        console.log('URL copied using navigator.clipboard');
+      } else {
+        // Fallback for insecure contexts or older browsers
+        console.log('Using fallback copy method');
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        console.log('Fallback copy success:', success);
+        if (!success) {
+          throw new Error('Fallback copy failed');
+        }
+      }
+      
+      console.log('Setting copied to true');
       setCopied(true);
       showToast('success', 'URL copied to clipboard!');
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => {
+        console.log('Setting copied to false');
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      showToast('error', 'Failed to copy URL to clipboard');
     }
   };
 
@@ -194,7 +254,7 @@ export default function ProjectEditPage() {
         </div>
 
         {/* Publishing Settings at the top */}
-        {formData.is_published && (
+        {(formData.is_published || project?.is_published) && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -203,16 +263,32 @@ export default function ProjectEditPage() {
                   {`${window.location.origin}/p/${project.id}`}
                 </p>
               </div>
-              <button
-                onClick={copyPublicUrl}
-                className="ml-3 flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-              >
-                {copied ? (
-                  <><Check className="w-4 h-4 mr-1" /> Copied</>
-                ) : (
-                  <><Copy className="w-4 h-4 mr-1" /> Copy URL</>
-                )}
-              </button>
+              <div className="ml-3 flex items-center space-x-3">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Copy button clicked');
+                    copyPublicUrl();
+                  }}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Copy URL to clipboard"
+                >
+                  {copied ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )}
+                </button>
+                <a
+                  href={`/p/${project.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Open in new tab"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                </a>
+              </div>
             </div>
           </div>
         )}
@@ -372,6 +448,13 @@ export default function ProjectEditPage() {
             </div>
           </div>
         </div>
+
+        <BillingModal
+          isOpen={showBillingModal}
+          onClose={() => setShowBillingModal(false)}
+          onConfirm={handlePublishWithLogo}
+          onUpgrade={handleUpgradeClick}
+        />
       </div>
     </DashboardLayout>
   );
