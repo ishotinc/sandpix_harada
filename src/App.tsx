@@ -40,11 +40,10 @@ import SuccessPage from "./pages/SuccessPage";
 // Landing Page Component
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-white">
       <Header />
       <main>
         <Hero />
-        <Features />
         <Showcase />
         <HowItWorks />
         <CTA />
