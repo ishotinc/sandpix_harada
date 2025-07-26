@@ -21,6 +21,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import WelcomePage from "./pages/auth/WelcomePage";
 
 // Dashboard Components
 import ProjectsPage from "./pages/dashboard/ProjectsPage";
@@ -66,6 +67,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
 
           {/* Dashboard Routes */}
           <Route path="/projects" element={<ProjectsPage />} />
