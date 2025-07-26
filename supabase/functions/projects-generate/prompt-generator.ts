@@ -111,42 +111,82 @@ export function generateFinalPrompt(
 
   // Inject footer for free users
   if (planType === 'free') {
+    // Language-specific footer text
+    const footerText = language === 'en' 
+      ? {
+          message: 'This website was created with',
+          cta: 'Create Yours'
+        }
+      : {
+          message: 'このWebサイトは',
+          suffix: 'で作られています',
+          cta: 'あなたも作ろう'  
+        };
+
+    const footerContent = language === 'en'
+      ? `${footerText.message}
+      <span style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ef4444, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3b82f6"/>
+              <stop offset="33%" style="stop-color:#8b5cf6"/>
+              <stop offset="66%" style="stop-color:#ef4444"/>
+              <stop offset="100%" style="stop-color:#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        </svg>
+        Sandpix
+      </span>`
+      : `${footerText.message}
+      <span style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ef4444, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3b82f6"/>
+              <stop offset="33%" style="stop-color:#8b5cf6"/>
+              <stop offset="66%" style="stop-color:#ef4444"/>
+              <stop offset="100%" style="stop-color:#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        </svg>
+        Sandpix
+      </span>
+      ${footerText.suffix}`;
+
     // Add padding-bottom to body to ensure content is not hidden behind fixed footer
     prompt = prompt.replace(
       '</body>',
       `
-<!-- Footer for free users -->
-<div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 16px 0; text-align: center; z-index: 9999; box-shadow: 0 -4px 12px rgba(0,0,0,0.15);">
-  <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-    <!-- SandPix Logo SVG (matching header design) -->
-    <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-        <path d="M5 3v4"/>
-        <path d="M19 17v4"/>
-        <path d="M3 5h4"/>
-        <path d="M17 19h4"/>
+<!-- Sandpix Branding Footer -->
+<div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-top: 1px solid rgba(0, 0, 0, 0.08); z-index: 9999; padding: 16px 20px;">
+  <div style="display: flex; align-items: center; justify-content: center; max-width: 1200px; margin: 0 auto; gap: 16px;">
+    <!-- Message Text -->
+    <div style="font-size: 14px; color: #6b7280; display: flex; align-items: center; gap: 8px;">
+      ${footerContent}
+    </div>
+    <!-- CTA Button -->
+    <a href="https://sandpix-harada.vercel.app/" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);">
+      ${footerText.cta}
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/>
+        <path d="m12 5 7 7-7 7"/>
       </svg>
-    </div>
-    <!-- Text with styled Sandpix name -->
-    <div style="font-size: 16px; font-weight: 600; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-      Made with 
-      <a href="https://sandpix-harada.vercel.app/" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 700; background: rgba(251, 191, 36, 0.15); padding: 4px 8px; border-radius: 6px; margin-left: 4px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.3s ease;">
-        <span style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">Sandpix</span>
-      </a>
-    </div>
+    </a>
   </div>
 </div>
 <style>
   /* Ensure content doesn't hide behind footer */
   body {
-    padding-bottom: 80px !important;
+    padding-bottom: 70px !important;
   }
-  /* Hover effect for the link */
+  /* Hover effect for the CTA button */
   a[href="https://sandpix-harada.vercel.app/"]:hover {
-    background: rgba(251, 191, 36, 0.3) !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+    background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
   }
 </style>
 </body>`
