@@ -7,31 +7,26 @@ import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
-import { LanguageSelector } from '../../components/generation/LanguageSelector';
-import { PurposeSelector } from '../../components/generation/PurposeSelector';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
 import { useToast } from '../../components/ui/ToastProvider';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
 import { Project } from '../../types/project';
 import { PurposeType } from '../../lib/constants/purposes';
-
-interface SwipeResult {
-  image: SwipeImage;
-  liked: boolean;
-}
+import { ProjectGenerationData, SwipeResult } from '../../types/generation';
+import { ArrowLeft } from 'lucide-react';
 
 export default function GeneratePage() {
   const [swipeConfig, setSwipeConfig] = useState<{ images: SwipeImage[] } | null>(null);
-  const [currentStep, setCurrentStep] = useState<'options' | 'swipe' | 'info' | 'preview'>('options');
+  const [currentStep, setCurrentStep] = useState<'swipe' | 'info' | 'preview'>('swipe');
   const [swipeResults, setSwipeResults] = useState<SwipeResult[]>([]);
-  const [projectData, setProjectData] = useState<any>(null);
+  const [projectData, setProjectData] = useState<ProjectGenerationData | null>(null);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
-  const [language, setLanguage] = useState<'ja' | 'en'>('ja');
+  const [language, setLanguage] = useState<'ja' | 'en'>('en');
   const [purpose, setPurpose] = useState<PurposeType>('product');
   const [usageRefreshTrigger, setUsageRefreshTrigger] = useState(0);
   const [hitGenerationLimit, setHitGenerationLimit] = useState(false);
@@ -74,10 +69,17 @@ export default function GeneratePage() {
           custom_head: data.project.custom_head,
           custom_body: data.project.custom_body,
         });
+        // Set language and purpose from saved project
+        if (data.project.language) {
+          setLanguage(data.project.language);
+        }
+        if (data.project.purpose) {
+          setPurpose(data.project.purpose);
+        }
         setIsPublished(data.project.is_published);
         setIsRegenerating(true);
-        // Skip to options step for regeneration
-        setCurrentStep('options');
+        // Skip to swipe step for regeneration
+        setCurrentStep('swipe');
       } else {
         showToast('error', 'Failed to load project for regeneration');
         navigate('/projects');
@@ -167,14 +169,23 @@ export default function GeneratePage() {
     }
   };
 
-  const handleInfoSubmit = async (data: any) => {
-    const projectDataWithPurpose = { ...data, purpose };
+  const handleInfoSubmit = async (data: ProjectGenerationData & { language: 'ja' | 'en'; purpose: PurposeType }) => {
+    // Extract language and purpose from data
+    const { language: formLanguage, purpose: formPurpose, ...projectInfo } = data;
+    setLanguage(formLanguage || 'en');
+    setPurpose(formPurpose || 'product');
+    
+    const projectDataWithPurpose: ProjectGenerationData = { 
+      ...projectInfo, 
+      purpose: formPurpose || purpose,
+      language: formLanguage || 'en'
+    };
     setProjectData(projectDataWithPurpose);
     setCurrentStep('preview');
     await generateLandingPage(projectDataWithPurpose);
   };
 
-  const generateLandingPage = async (data: any) => {
+  const generateLandingPage = async (data: ProjectGenerationData) => {
     setLoading(true);
     try {
       const swipeScores = calculateSwipeScores(swipeResults);
@@ -251,11 +262,12 @@ export default function GeneratePage() {
     }
   };
 
-  const autoSaveProject = async (data: any, html: string) => {
+  const autoSaveProject = async (data: ProjectGenerationData, html: string) => {
     try {
       const headers = await getAuthHeaders();
       const projectPayload = {
         ...data,
+        language,
         generated_html: html,
         is_published: false, // Auto-saved as draft
       };
@@ -301,6 +313,7 @@ export default function GeneratePage() {
       const headers = await getAuthHeaders();
       const projectPayload = {
         ...projectData,
+        language,
         generated_html: generatedHtml,
         is_published: false, // Keep as draft when saving
       };
@@ -382,28 +395,21 @@ export default function GeneratePage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
+        {/* Back button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/projects')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </button>
+        </div>
+        
         {/* Show usage counter at the top */}
         <div className="mb-6">
           <UsageCounter refreshTrigger={usageRefreshTrigger} />
         </div>
-        
-        {currentStep === 'options' && (
-          <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {language === 'ja' ? 'LP生成オプション' : 'LP Generation Options'}
-            </h1>
-            <div className="bg-white rounded-lg shadow p-6 space-y-6">
-              <LanguageSelector value={language} onChange={setLanguage} />
-              <PurposeSelector value={purpose} onChange={setPurpose} language={language} />
-              <button
-                onClick={() => setCurrentStep('swipe')}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                {language === 'ja' ? '次へ' : 'Next'}
-              </button>
-            </div>
-          </div>
-        )}
         
         {currentStep === 'swipe' && (
           <SwipeContainer

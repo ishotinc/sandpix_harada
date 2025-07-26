@@ -3,7 +3,7 @@
 import { Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ProductCard } from '@/components/stripe/ProductCard';
-import { stripeProducts } from '@/stripe-config';
+import { stripeProducts } from '@/lib/stripe-config';
 import { Link } from 'react-router-dom';
 
 export function Pricing() {

@@ -6,8 +6,9 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useToast } from '../../components/ui/ToastProvider';
 import { Profile } from '../../types/profile';
-import { User, Building, Award, Mail } from 'lucide-react';
+import { User, Building, Award, Mail, ArrowLeft } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -22,6 +23,7 @@ export default function ProfilePage() {
     contact_info: '',
   });
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProfile();
@@ -98,6 +100,13 @@ export default function ProfilePage() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
+          <button
+            onClick={() => navigate('/projects')}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </button>
           <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
           <p className="text-gray-600 mt-2">
             This information will be used to personalize your landing pages
@@ -193,7 +202,7 @@ export default function ProfilePage() {
               loading={saving}
               className="px-8"
             >
-              Save Profile
+              Save
             </Button>
           </div>
         </form>

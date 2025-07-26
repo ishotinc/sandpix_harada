@@ -65,7 +65,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -84,8 +84,15 @@ export default function RegisterPage() {
         return;
       }
 
-      showToast('success', 'Registration successful! Please check your email for verification.');
-      navigate('/verify-email');
+      // Store user info for welcome email
+      localStorage.setItem('newUserEmail', email);
+      localStorage.setItem('newUserName', fullName);
+      
+      if (data.user) {
+        showToast('success', 'Registration successful! Welcome to Sandpix!');
+        // Redirect to welcome page showing registration complete
+        navigate('/welcome');
+      }
     } catch (error) {
       showToast('error', 'An unexpected error occurred. Please try again.');
     } finally {

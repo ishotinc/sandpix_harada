@@ -7,8 +7,9 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useToast } from '../../components/ui/ToastProvider';
 import { Project } from '../../types/project';
-import { Save, RefreshCw, Eye, Code, ExternalLink, Globe } from 'lucide-react';
+import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
+import { BillingModal } from '../../components/ui/BillingModal';
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,10 +21,13 @@ export default function ProjectEditPage() {
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
+  const [copied, setCopied] = useState(false);
+  const [showBillingModal, setShowBillingModal] = useState(false);
   
   const [formData, setFormData] = useState({
     service_name: '',
-    purpose: 'service',
+    purpose: 'service' as 'product' | 'brand' | 'service' | 'lead' | 'event',
+    language: 'en' as 'en' | 'ja',
     service_description: '',
     redirect_url: '',
     cta_text: 'Get Started',
@@ -54,6 +58,7 @@ export default function ProjectEditPage() {
         setFormData({
           service_name: data.project.service_name || '',
           purpose: data.project.purpose || 'service',
+          language: data.project.language || 'en',
           service_description: data.project.service_description || '',
           redirect_url: data.project.redirect_url || '',
           cta_text: data.project.cta_text || 'Get Started',
@@ -107,7 +112,75 @@ export default function ProjectEditPage() {
   };
 
   const handleChange = (field: string, value: string | boolean) => {
+    if (field === 'is_published' && value === true) {
+      // Show billing modal when trying to publish
+      setShowBillingModal(true);
+      return;
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePublishWithLogo = async () => {
+    setFormData(prev => ({ ...prev, is_published: true }));
+    setShowBillingModal(false);
+    await handleSave();
+  };
+
+  const handleUpgradeClick = () => {
+    setShowBillingModal(false);
+    navigate('/pricing');
+  };
+
+  const copyPublicUrl = async () => {
+    console.log('copyPublicUrl called');
+    console.log('project?.is_published:', project?.is_published);
+    console.log('formData.is_published:', formData.is_published);
+    
+    if (!project?.is_published && !formData.is_published) {
+      console.log('Project not published, showing error');
+      showToast('error', 'Project must be published to copy URL');
+      return;
+    }
+
+    try {
+      const url = `${window.location.origin}/p/${project.id}`;
+      console.log('Attempting to copy URL:', url);
+      console.log('navigator.clipboard available:', !!navigator.clipboard);
+      console.log('isSecureContext:', window.isSecureContext);
+      
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        console.log('URL copied using navigator.clipboard');
+      } else {
+        // Fallback for insecure contexts or older browsers
+        console.log('Using fallback copy method');
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        console.log('Fallback copy success:', success);
+        if (!success) {
+          throw new Error('Fallback copy failed');
+        }
+      }
+      
+      console.log('Setting copied to true');
+      setCopied(true);
+      showToast('success', 'URL copied to clipboard!');
+      setTimeout(() => {
+        console.log('Setting copied to false');
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      showToast('error', 'Failed to copy URL to clipboard');
+    }
   };
 
   if (loading) {
@@ -132,13 +205,21 @@ export default function ProjectEditPage() {
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{project.service_name}</h1>
-            <p className="text-gray-600 mt-2">Edit your landing page project</p>
-          </div>
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/projects')}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </button>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{project.service_name}</h1>
+              <p className="text-gray-600 mt-2">Edit your landing page project</p>
+            </div>
           
-          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
             {project.is_published && (
               <a
                 href={`/p/${project.id}`}
@@ -166,8 +247,67 @@ export default function ProjectEditPage() {
               loading={saving}
             >
               <Save className="w-4 h-4 mr-2" />
-              Save Changes
+              Save
             </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Publishing Settings at the top */}
+        {(formData.is_published || project?.is_published) && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h4 className="font-medium text-green-900 mb-1">Public URL</h4>
+                <p className="text-sm text-green-700 font-mono break-all">
+                  {`${window.location.origin}/p/${project.id}`}
+                </p>
+              </div>
+              <div className="ml-3 flex items-center space-x-3">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Copy button clicked');
+                    copyPublicUrl();
+                  }}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Copy URL to clipboard"
+                >
+                  {copied ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )}
+                </button>
+                <a
+                  href={`/p/${project.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Open in new tab"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6 bg-white rounded-2xl shadow-lg p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900">Publish Landing Page</h3>
+              <p className="text-sm text-gray-600">Make this landing page publicly accessible</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.is_published}
+                onChange={(e) => handleChange('is_published', e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
           </div>
         </div>
 
@@ -185,21 +325,37 @@ export default function ProjectEditPage() {
                   placeholder="Your service or product name"
                 />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Purpose
-                  </label>
-                  <select
-                    value={formData.purpose}
-                    onChange={(e) => handleChange('purpose', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="service">Service Introduction</option>
-                    <option value="product">Product Sales</option>
-                    <option value="brand">Brand/Company</option>
-                    <option value="lead">Lead Generation</option>
-                    <option value="event">Event Promotion</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Language
+                    </label>
+                    <select
+                      value={formData.language}
+                      onChange={(e) => handleChange('language', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="en">English</option>
+                      <option value="ja">日本語</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Purpose
+                    </label>
+                    <select
+                      value={formData.purpose}
+                      onChange={(e) => handleChange('purpose', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="product">Product</option>
+                      <option value="brand">Brand</option>
+                      <option value="service">Service</option>
+                      <option value="lead">Lead</option>
+                      <option value="event">Event</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -231,47 +387,10 @@ export default function ProjectEditPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Publishing Settings</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Published</h3>
-                    <p className="text-sm text-gray-600">Make this landing page live</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_published}
-                      onChange={(e) => handleChange('is_published', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Public Access</h3>
-                    <p className="text-sm text-gray-600">Allow public access via URL</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_public}
-                      onChange={(e) => handleChange('is_public', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Preview Section */}
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-0">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Preview</h2>
               
@@ -301,7 +420,7 @@ export default function ProjectEditPage() {
               </div>
             </div>
 
-            <div className="h-[600px]">
+            <div className="h-[600px] mb-0">
               {viewMode === 'preview' ? (
                 project.generated_html ? (
                   <iframe
@@ -329,6 +448,13 @@ export default function ProjectEditPage() {
             </div>
           </div>
         </div>
+
+        <BillingModal
+          isOpen={showBillingModal}
+          onClose={() => setShowBillingModal(false)}
+          onConfirm={handlePublishWithLogo}
+          onUpgrade={handleUpgradeClick}
+        />
       </div>
     </DashboardLayout>
   );

@@ -21,6 +21,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import WelcomePage from "./pages/auth/WelcomePage";
 
 // Dashboard Components
 import ProjectsPage from "./pages/dashboard/ProjectsPage";
@@ -39,11 +40,10 @@ import SuccessPage from "./pages/SuccessPage";
 // Landing Page Component
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-white">
       <Header />
       <main>
         <Hero />
-        <Features />
         <Showcase />
         <HowItWorks />
         <CTA />
@@ -66,6 +66,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
 
           {/* Dashboard Routes */}
           <Route path="/projects" element={<ProjectsPage />} />

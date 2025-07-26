@@ -1,4 +1,5 @@
 import { SwipeScores, SwipeImage } from '@/types/project';
+import { APP_CONFIG } from '@/lib/config';
 
 function normalizeScores(rawScores: SwipeScores) {
   // 1. 最高値を取得
@@ -75,29 +76,31 @@ export function getStyleDescription(scores: SwipeScores): string {
     descriptions.push('cool colors');
   }
 
-  if (scores.vivid_score > 50) {
+  const { significant, strong } = APP_CONFIG.scoring.thresholds;
+  
+  if (scores.vivid_score > significant) {
     descriptions.push('vibrant and colorful');
-  } else if (scores.mono_score > 50) {
+  } else if (scores.mono_score > significant) {
     descriptions.push('monochrome and elegant');
   }
 
-  // Atmosphere preferences (using 60% threshold for strong preferences)
-  if (scores.friendly_score > 60) {
+  // Atmosphere preferences (using strong threshold for strong preferences)
+  if (scores.friendly_score > strong) {
     descriptions.push('friendly and approachable');
   }
-  if (scores.professional_score > 60) {
+  if (scores.professional_score > strong) {
     descriptions.push('professional and trustworthy');
   }
-  if (scores.creative_score > 60) {
+  if (scores.creative_score > strong) {
     descriptions.push('creative and innovative');
   }
-  if (scores.minimal_score > 60) {
+  if (scores.minimal_score > strong) {
     descriptions.push('minimal and clean');
   }
-  if (scores.energetic_score > 60) {
+  if (scores.energetic_score > strong) {
     descriptions.push('energetic and dynamic');
   }
-  if (scores.luxurious_score > 60) {
+  if (scores.luxurious_score > strong) {
     descriptions.push('luxurious and premium');
   }
 
@@ -122,23 +125,25 @@ export function getPromptModifiers(scores: SwipeScores): string {
     modifiers.push('Use monochrome or limited color palette');
   }
 
-  // Atmosphere modifiers (using 50% threshold for significant preferences)
-  if (scores.friendly_score > 50) {
+  // Atmosphere modifiers (using significant threshold for significant preferences)
+  const { significant } = APP_CONFIG.scoring.thresholds;
+  
+  if (scores.friendly_score > significant) {
     modifiers.push('Create friendly, approachable design with rounded corners and soft elements');
   }
-  if (scores.professional_score > 50) {
+  if (scores.professional_score > significant) {
     modifiers.push('Maintain professional, business-oriented design with clean lines');
   }
-  if (scores.creative_score > 50) {
+  if (scores.creative_score > significant) {
     modifiers.push('Include creative, innovative design elements and unique layouts');
   }
-  if (scores.minimal_score > 50) {
+  if (scores.minimal_score > significant) {
     modifiers.push('Focus on minimal design with lots of white space and simple elements');
   }
-  if (scores.energetic_score > 50) {
+  if (scores.energetic_score > significant) {
     modifiers.push('Create dynamic, high-energy design with bold elements');
   }
-  if (scores.luxurious_score > 50) {
+  if (scores.luxurious_score > significant) {
     modifiers.push('Use premium, sophisticated design with elegant typography');
   }
 

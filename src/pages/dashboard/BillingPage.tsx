@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { PLAN_LIMITS } from '@/lib/constants/plans';
@@ -109,6 +110,15 @@ export default function BillingPage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto p-6">
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/projects')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </button>
+        </div>
         <h1 className="text-2xl font-bold mb-8">Billing & Subscription</h1>
         
         <div className="grid md:grid-cols-2 gap-6">
