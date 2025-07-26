@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/Button';
 import { Save, RefreshCw, Eye, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
 import { UpgradeBanner } from '@/components/dashboard/UpgradeBanner';
 import { useProfile } from '@/hooks/useProfile';
+import { ProgressiveLoading } from '@/components/ui/ProgressiveLoading';
+import { BillingModal } from '@/components/ui/BillingModal';
+import { useNavigate } from 'react-router-dom';
 
 interface GeneratePreviewProps {
   html: string;
@@ -20,7 +23,9 @@ interface GeneratePreviewProps {
 export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish, showGenerationLimitBanner = false }: GeneratePreviewProps) {
   const [copySuccess, setCopySuccess] = useState('');
   const [showBanner, setShowBanner] = useState(showGenerationLimitBanner);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { profile } = useProfile();
+  const navigate = useNavigate();
   
   const publicUrl = projectId ? `${window.location.origin}/p/${projectId}` : '';
   
@@ -39,6 +44,26 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
       setCopySuccess('Failed to copy!');
       setTimeout(() => setCopySuccess(''), 2000);
     }
+  };
+
+  const handleSaveClick = () => {
+    // Check if user has hit generation limit and is on free plan
+    if (showGenerationLimitBanner && profile?.plan_type === 'free') {
+      setShowUpgradeModal(true);
+      return;
+    }
+    
+    // Normal save flow
+    onSave();
+  };
+
+  const handleUpgradeClick = () => {
+    setShowUpgradeModal(false);
+    navigate('/pricing');
+  };
+
+  const handleModalClose = () => {
+    setShowUpgradeModal(false);
   };
 
   return (
@@ -117,7 +142,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
 
           <Button
             variant="gradient"
-            onClick={onSave}
+            onClick={handleSaveClick}
             disabled={loading || !html}
             className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
           >
@@ -130,13 +155,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Generating your landing page...</p>
-              <p className="text-sm text-gray-500 mt-2">This may take up to 30 seconds</p>
-            </div>
-          </div>
+          <ProgressiveLoading />
         ) : html ? (
           <div className="h-[800px]">
             <iframe
@@ -147,7 +166,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
             />
           </div>
         ) : (
-          <div className="flex items-center justify-center h-96">
+          <div className="flex items-center justify-center min-h-[600px]">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Eye className="w-8 h-8 text-gray-400" />
@@ -170,6 +189,13 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           </ul>
         </div>
       )}
+
+      <BillingModal
+        isOpen={showUpgradeModal}
+        onClose={handleModalClose}
+        onConfirm={handleModalClose}
+        onUpgrade={handleUpgradeClick}
+      />
     </div>
   );
 }
