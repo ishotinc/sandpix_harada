@@ -133,19 +133,7 @@ export const DEFAULT_PROMPT_TEMPLATE = `# 🚨 絶対遵守事項（実装前に
 
 ## 🎨 デザインスタイル指示（スワイプスコアベース）
 **重要**: 以下のスコアからランキングを算出し、デザインスタイルを決定してください：
-  スワイプスコアランキング:
-  1位: professional_score (100.0点)
-  2位: cool_score (72.7点)
-  3位: minimal_score (54.5点)
-  4位: warm_score (36.4点)
-  5位: creative_score (36.4点)
-  6位: vivid_score (27.3点)
-  7位: mono_score (45.5点)
-  8位: energetic_score (18.2点)
-  9位: trustworthy_score (90.9点)
-  10位: friendly_score (9.1点)
-  11位: approachable_score (13.6点)
-  12位: luxurious_score (0.0点)
+{swipe_scores}
 
 ### スコア反映ルール（ランキングベース）
 - **1位**: メインテーマとして全体のデザインを支配

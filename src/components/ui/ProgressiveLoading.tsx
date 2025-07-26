@@ -15,37 +15,37 @@ const GENERATION_STEPS: Step[] = [
     id: 1,
     title: 'Analyzing Requirements',
     description: 'Analyzing user input data and swipe results',
-    duration: 3
+    duration: 8
   },
   {
     id: 2,
     title: 'Creating Design Concept',
     description: 'Determining design direction from swipe results',
-    duration: 4
+    duration: 10
   },
   {
     id: 3,
     title: 'Structuring Content',
     description: 'Planning section composition based on purpose',
-    duration: 4
+    duration: 10
   },
   {
     id: 4,
     title: 'Creating Copy',
     description: 'Generating catchphrases and descriptions',
-    duration: 5
+    duration: 12
   },
   {
     id: 5,
     title: 'Building Design & Layout',
     description: 'Constructing CSS and HTML structure',
-    duration: 6
+    duration: 15
   },
   {
     id: 6,
     title: 'Quality Check & Optimization',
     description: 'Implementing responsive design and final adjustments',
-    duration: 3
+    duration: 5
   }
 ];
 
