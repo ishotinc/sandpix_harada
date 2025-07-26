@@ -42,7 +42,7 @@ export const DEFAULT_PROMPT_TEMPLATE = `# 🚨 絶対遵守事項（実装前に
 **絶対に他の言語を混ぜないでください。**
 
 ## 最重要指示
-**three.js, framer motion相当のアニメーション,  tailwind css,Heroicons CDNで限界を超えたデザインで視認性の高いランディングページを作成してください*
+**three.js, framer motion,  tailwind css,Heroicons CDNで限界を超えたデザインで視認性の高いランディングページを作成してください*
 
 ### デザイン品質基準
 - **視認性**: 全デバイスで文字が完璧に読める
