@@ -1,4 +1,6 @@
-import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.24.1';\n// Removed logger import to fix deployment issues
+import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.24.1';
+
+// Removed logger import to fix deployment issues
 
 export function createGeminiClient(apiKey: string) {
   if (!apiKey) {
