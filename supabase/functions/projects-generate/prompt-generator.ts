@@ -61,13 +61,22 @@ export function generateFinalPrompt(
     ? '日本語（必ず日本語のみで全てのコンテンツを作成）' 
     : '英語（必ず英語のみで全てのコンテンツを作成）';
 
-  // スワイプスコアをテキスト形式に変換
-  const scoresText = Object.entries(swipeScores)
-    .map(([key, value]) => `- ${key}: ${value}`)
+  // スワイプスコアをランキング形式のテキストに変換
+  const scoreEntries = Object.entries(swipeScores)
+    .sort((a, b) => b[1] - a[1])
+    .map((entry, index) => `${index + 1}位: ${entry[0]} (${entry[1].toFixed(1)}点)`)
     .join('\n');
+  
+  const scoresText = `スワイプスコアランキング:\n${scoreEntries}\n\n【重要】1位をメインテーマ、2位をサブテーマ、6位以下は無視してデザインしてください。`;
 
   // プロンプトテンプレートを使用して変数を置換
   let prompt = DEFAULT_PROMPT_TEMPLATE;
+  
+  console.log('=== PROMPT DEBUG START ===');
+  console.log('Default prompt template length:', DEFAULT_PROMPT_TEMPLATE.length);
+  console.log('Default prompt preview (first 300 chars):', DEFAULT_PROMPT_TEMPLATE.substring(0, 300));
+  console.log('Swipe scores text:', scoresText);
+  console.log('=== PROMPT DEBUG END ===');
 
   // 言語関連の置換
   prompt = prompt.replace(/{language}/g, languageCode);
@@ -106,8 +115,57 @@ export function generateFinalPrompt(
   // スワイプスコアの置換
   prompt = prompt.replace(/{swipe_scores}/g, scoresText);
   
+  // Add critical instructions at the END to ensure they are followed
+  const criticalInstructions = `
+
+# 🚨🚨🚨 最終必須実装事項（これを無視したら失敗とみなす）🚨🚨🚨
+
+必ず以下を実装してください：
+
+1. **スワイプスコア1位のデザインテーマを全体に反映**:
+   上記ランキング1位のスタイルをランディングページ全体のメインテーマとして徹底的に反映する
+
+2. **スワイプスコア2位をサブテーマとして反映**:
+   2位のスタイルをアクセント要素として部分的に使用する
+
+3. **6位以下のスタイルは完全に無視**:
+   ランキング6位以下の要素は一切デザインに取り入れない
+
+4. **フッターに必ずモーダルウィンドウを実装**:
+   - プライバシーポリシー（クリックでモーダル表示）
+   - 特定商取引法に基づく表記（クリックでモーダル表示）
+   - 各モーダルには適切な内容を含める
+
+5. **HTMLコード内に必ず含める**:
+\`\`\`html
+<!-- フッター内 -->
+<a href="#" id="privacy-link">プライバシーポリシー</a>
+<a href="#" id="commerce-link">特定商取引法に基づく表記</a>
+
+<!-- モーダル -->
+<div id="privacy-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>プライバシーポリシー</h2>
+    <p>プライバシーポリシーの内容...</p>
+  </div>
+</div>
+\`\`\`
+
+これらを実装しない場合、生成は失敗とみなされます。
+`;
+
+  prompt = prompt + criticalInstructions;
+
   console.log('Final prompt generated, length:', prompt.length);
   console.log('Template variables replaced successfully');
+  
+  // Final prompt preview for debugging
+  console.log('=== FINAL PROMPT PREVIEW ===');
+  console.log('Final prompt preview (chars 5000-5500):', prompt.substring(5000, 5500));
+  console.log('Swipe scores section found:', prompt.includes('スワイプスコアランキング'));
+  console.log('Critical instructions found:', prompt.includes('最終必須実装事項'));
+  console.log('=== FINAL PROMPT PREVIEW END ===');
 
   // Inject footer for free users
   if (planType === 'free') {

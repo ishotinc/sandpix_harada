@@ -13,38 +13,38 @@ interface Step {
 const GENERATION_STEPS: Step[] = [
   {
     id: 1,
-    title: '要件分析中',
-    description: 'ユーザーの入力データとスワイプ結果を解析しています',
+    title: 'Analyzing Requirements',
+    description: 'Analyzing user input data and swipe results',
     duration: 3
   },
   {
     id: 2,
-    title: 'デザインコンセプト策定中',
-    description: 'スワイプ結果からデザイン方針を決定しています',
+    title: 'Creating Design Concept',
+    description: 'Determining design direction from swipe results',
     duration: 4
   },
   {
     id: 3,
-    title: 'コンテンツ構成中',
-    description: '目的に応じたセクション構成を計画しています',
+    title: 'Structuring Content',
+    description: 'Planning section composition based on purpose',
     duration: 4
   },
   {
     id: 4,
-    title: '原稿作成中',
-    description: 'キャッチコピーや説明文を生成しています',
+    title: 'Creating Copy',
+    description: 'Generating catchphrases and descriptions',
     duration: 5
   },
   {
     id: 5,
-    title: 'デザイン・レイアウト作成中',
-    description: 'CSSとHTMLの構築を行っています',
+    title: 'Building Design & Layout',
+    description: 'Constructing CSS and HTML structure',
     duration: 6
   },
   {
     id: 6,
-    title: '品質チェック・最適化中',
-    description: 'レスポンシブ対応や最終調整を行っています',
+    title: 'Quality Check & Optimization',
+    description: 'Implementing responsive design and final adjustments',
     duration: 3
   }
 ];
@@ -103,10 +103,10 @@ export function ProgressiveLoading() {
         {/* Current Step */}
         <div className="mb-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {currentStepInfo?.title || 'ランディングページを生成中...'}
+            {currentStepInfo?.title || 'Generating Landing Page...'}
           </h3>
           <p className="text-gray-600 text-sm">
-            {currentStepInfo?.description || 'しばらくお待ちください'}
+            {currentStepInfo?.description || 'Please wait a moment'}
           </p>
         </div>
 
@@ -119,8 +119,8 @@ export function ProgressiveLoading() {
             ></div>
           </div>
           <div className="flex justify-between text-xs text-gray-500">
-            <span>進捗: {Math.round(progressPercentage)}%</span>
-            <span>残り約 {Math.max(0, Math.ceil(totalDuration - elapsedTime))} 秒</span>
+            <span>Progress: {Math.round(progressPercentage)}%</span>
+            <span>About {Math.max(0, Math.ceil(totalDuration - elapsedTime))} seconds remaining</span>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export function ProgressiveLoading() {
         </div>
 
         <div className="mt-6 text-xs text-gray-500">
-          <p>高品質なランディングページを生成しています...</p>
+          <p>Generating a high-quality landing page...</p>
         </div>
       </div>
     </div>

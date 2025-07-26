@@ -8,18 +8,18 @@
       "visual_hints": "Staff smiling photos, hand-drawn icons, soft rounded corners, warm expressions",
       "path": "/images/swipe-1.jpg",
       "scores": {
-        "warm_score": 1,
-        "cool_score": 0,
-        "mono_score": 0,
-        "vivid_score": 0,
-        "friendly_score": 1,
-        "professional_score": 0,
-        "creative_score": 0,
-        "minimal_score": 0,
-        "energetic_score": 0,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 1
+        "warm_score": 9,
+        "cool_score": 2,
+        "mono_score": 1,
+        "vivid_score": 4,
+        "friendly_score": 10,
+        "professional_score": 3,
+        "creative_score": 6,
+        "minimal_score": 7,
+        "energetic_score": 5,
+        "trustworthy_score": 8,
+        "luxurious_score": 2,
+        "approachable_score": 10
       }
     },
     {
@@ -29,18 +29,18 @@
       "visual_hints": "Suited professionals, data graphs, angular design, logical structure",
       "path": "/images/swipe-2.jpg",
       "scores": {
-        "warm_score": 0,
+        "warm_score": 2,
         "cool_score": 1,
-        "mono_score": 0,
+        "mono_score": 8,
         "vivid_score": 0,
-        "friendly_score": 0,
-        "professional_score": 1,
-        "creative_score": 0,
-        "minimal_score": 0,
+        "friendly_score": 1,
+        "professional_score": 9,
+        "creative_score": 2,
+        "minimal_score": 9,
         "energetic_score": 0,
-        "trustworthy_score": 1,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "trustworthy_score": 10,
+        "luxurious_score": 10,
+        "approachable_score": 1
       }
     },
     {
@@ -50,18 +50,18 @@
       "visual_hints": "Abstract art, unconventional layouts, creative typography, artistic elements",
       "path": "/images/swipe-3.jpg",
       "scores": {
-        "warm_score": 0,
-        "cool_score": 0,
-        "mono_score": 0,
-        "vivid_score": 1,
-        "friendly_score": 0,
-        "professional_score": 0,
-        "creative_score": 1,
-        "minimal_score": 0,
-        "energetic_score": 1,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "warm_score": 9,
+        "cool_score": 9,
+        "mono_score": 1,
+        "vivid_score": 10,
+        "friendly_score": 9,
+        "professional_score": 6,
+        "creative_score": 10,
+        "minimal_score": 1,
+        "energetic_score": 10,
+        "trustworthy_score": 7,
+        "luxurious_score": 2,
+        "approachable_score": 10
       }
     },
     {
@@ -72,17 +72,17 @@
       "path": "/images/swipe-4.jpg",
       "scores": {
         "warm_score": 0,
-        "cool_score": 1,
-        "mono_score": 1,
+        "cool_score": 7,
+        "mono_score": 10,
         "vivid_score": 0,
         "friendly_score": 0,
-        "professional_score": 1,
-        "creative_score": 0,
-        "minimal_score": 1,
+        "professional_score": 10,
+        "creative_score": 3,
+        "minimal_score": 8,
         "energetic_score": 0,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "trustworthy_score": 10,
+        "luxurious_score": 8,
+        "approachable_score": 2
       }
     },
     {
@@ -92,18 +92,18 @@
       "visual_hints": "Bright colors, action shots, dynamic layouts, energetic messaging",
       "path": "/images/swipe-5.jpg",
       "scores": {
-        "warm_score": 1,
-        "cool_score": 0,
-        "mono_score": 0,
-        "vivid_score": 1,
-        "friendly_score": 0,
-        "professional_score": 0,
-        "creative_score": 0,
-        "minimal_score": 0,
-        "energetic_score": 1,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "warm_score": 10,
+        "cool_score": 7,
+        "mono_score": 9,
+        "vivid_score": 5,
+        "friendly_score": 10,
+        "professional_score": 7,
+        "creative_score": 9,
+        "minimal_score": 5,
+        "energetic_score": 7,
+        "trustworthy_score": 9,
+        "luxurious_score": 1,
+        "approachable_score": 10
       }
     },
     {
@@ -114,17 +114,17 @@
       "path": "/images/swipe-6.jpg",
       "scores": {
         "warm_score": 0,
-        "cool_score": 0,
-        "mono_score": 1,
-        "vivid_score": 0,
-        "friendly_score": 0,
-        "professional_score": 1,
-        "creative_score": 0,
-        "minimal_score": 0,
-        "energetic_score": 0,
-        "trustworthy_score": 1,
-        "luxurious_score": 1,
-        "approachable_score": 0
+        "cool_score": 10,
+        "mono_score": 2,
+        "vivid_score": 6,
+        "friendly_score": 2,
+        "professional_score": 10,
+        "creative_score": 7,
+        "minimal_score": 6,
+        "energetic_score": 4,
+        "trustworthy_score": 10,
+        "luxurious_score": 3,
+        "approachable_score": 3
       }
     },
     {
@@ -134,18 +134,18 @@
       "visual_hints": "Warm lighting, comfortable spaces, earth tones, inviting atmosphere",
       "path": "/images/swipe-7.jpg",
       "scores": {
-        "warm_score": 1,
-        "cool_score": 0,
-        "mono_score": 0,
+        "warm_score": 0,
+        "cool_score": 3,
+        "mono_score": 10,
         "vivid_score": 0,
-        "friendly_score": 1,
-        "professional_score": 0,
-        "creative_score": 0,
-        "minimal_score": 0,
-        "energetic_score": 0,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 1
+        "friendly_score": 0,
+        "professional_score": 7,
+        "creative_score": 5,
+        "minimal_score": 10,
+        "energetic_score": 2,
+        "trustworthy_score": 6,
+        "luxurious_score": 10,
+        "approachable_score": 3
       }
     },
     {
@@ -155,18 +155,18 @@
       "visual_hints": "Cool blues, modern architecture, sleek designs, contemporary feel",
       "path": "/images/swipe-8.jpg",
       "scores": {
-        "warm_score": 0,
-        "cool_score": 1,
-        "mono_score": 0,
-        "vivid_score": 0,
-        "friendly_score": 0,
-        "professional_score": 1,
-        "creative_score": 1,
-        "minimal_score": 0,
-        "energetic_score": 0,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "warm_score": 2,
+        "cool_score": 3,
+        "mono_score": 9,
+        "vivid_score": 8,
+        "friendly_score": 7,
+        "professional_score": 8,
+        "creative_score": 8,
+        "minimal_score": 6,
+        "energetic_score": 8,
+        "trustworthy_score": 8,
+        "luxurious_score": 2,
+        "approachable_score": 9
       }
     },
     {
@@ -176,18 +176,18 @@
       "visual_hints": "Black and white photography, elegant typography, sophisticated layouts",
       "path": "/images/swipe-9.jpg",
       "scores": {
-        "warm_score": 0,
-        "cool_score": 0,
-        "mono_score": 1,
-        "vivid_score": 0,
-        "friendly_score": 0,
-        "professional_score": 1,
-        "creative_score": 0,
-        "minimal_score": 1,
-        "energetic_score": 0,
-        "trustworthy_score": 1,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "warm_score": 3,
+        "cool_score": 7,
+        "mono_score": 8,
+        "vivid_score": 2,
+        "friendly_score": 2,
+        "professional_score": 9,
+        "creative_score": 4,
+        "minimal_score": 10,
+        "energetic_score": 1,
+        "trustworthy_score": 10,
+        "luxurious_score": 3,
+        "approachable_score": 9
       }
     },
     {
@@ -197,18 +197,18 @@
       "visual_hints": "Bright colors, playful elements, vibrant photography, colorful graphics",
       "path": "/images/swipe-10.jpg",
       "scores": {
-        "warm_score": 0,
-        "cool_score": 0,
-        "mono_score": 0,
-        "vivid_score": 1,
-        "friendly_score": 1,
-        "professional_score": 0,
-        "creative_score": 1,
-        "minimal_score": 0,
-        "energetic_score": 1,
-        "trustworthy_score": 0,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "warm_score": 1,
+        "cool_score": 2,
+        "mono_score": 10,
+        "vivid_score": 10,
+        "friendly_score": 5,
+        "professional_score": 6,
+        "creative_score": 10,
+        "minimal_score": 3,
+        "energetic_score": 10,
+        "trustworthy_score": 6,
+        "luxurious_score": 1,
+        "approachable_score": 7
       }
     },
     {
@@ -218,18 +218,18 @@
       "visual_hints": "Digital interfaces, tech elements, innovative layouts, futuristic design",
       "path": "/images/swipe-11.jpg",
       "scores": {
-        "warm_score": 0,
-        "cool_score": 1,
-        "mono_score": 0,
+        "warm_score": 8,
+        "cool_score": 2,
+        "mono_score": 9,
         "vivid_score": 0,
-        "friendly_score": 0,
-        "professional_score": 1,
+        "friendly_score": 2,
+        "professional_score": 10,
         "creative_score": 1,
-        "minimal_score": 0,
+        "minimal_score": 10,
         "energetic_score": 0,
-        "trustworthy_score": 1,
-        "luxurious_score": 0,
-        "approachable_score": 0
+        "trustworthy_score": 10,
+        "luxurious_score": 10,
+        "approachable_score": 3
       }
     },
     {
@@ -239,18 +239,18 @@
       "visual_hints": "Natural photography, organic shapes, earth tones, nature elements",
       "path": "/images/swipe-12.jpg",
       "scores": {
-        "warm_score": 1,
-        "cool_score": 0,
-        "mono_score": 0,
-        "vivid_score": 0,
-        "friendly_score": 0,
-        "professional_score": 0,
-        "creative_score": 0,
-        "minimal_score": 0,
-        "energetic_score": 0,
-        "trustworthy_score": 1,
-        "luxurious_score": 0,
-        "approachable_score": 1
+        "warm_score": 8,
+        "cool_score": 2,
+        "mono_score": 3,
+        "vivid_score": 9,
+        "friendly_score": 7,
+        "professional_score": 5,
+        "creative_score": 4,
+        "minimal_score": 2,
+        "energetic_score": 10,
+        "trustworthy_score": 8,
+        "luxurious_score": 1,
+        "approachable_score": 9
       }
     }
   ]
