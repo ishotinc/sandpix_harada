@@ -126,8 +126,28 @@ serve(async (req) => {
     const { projectData, swipeScores, language: requestLanguage, purpose: requestPurpose } = await req.json()
 
     // Extract language and purpose from request body (not from projectData)
-    const language = requestLanguage || 'ja'
+    const language = requestLanguage
     const purpose = requestPurpose || projectData.purpose || 'product'
+
+    // Validate required language parameter
+    if (!language) {
+      return new Response(JSON.stringify({ 
+        error: 'Language parameter is required. Please specify "ja" or "en".' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Validate language value
+    if (language !== 'ja' && language !== 'en') {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid language parameter. Must be "ja" or "en".' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     // Get full user profile for personalization
     const { data: fullProfile } = await supabaseClient

@@ -48,7 +48,7 @@ export function generateFinalPrompt(
   profileData: Profile,
   swipeScores: SwipeScores,
   planType: PlanType = 'free',
-  language: Language = 'en',
+  language: Language,
   purpose: Purpose = 'product'
 ): string {
   const builder = new PromptBuilder(DEFAULT_PROMPT_TEMPLATE);

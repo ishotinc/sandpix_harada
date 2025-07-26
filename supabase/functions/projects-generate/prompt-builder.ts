@@ -53,7 +53,7 @@ export class PromptBuilder {
     profileData: Profile,
     swipeScores: SwipeScores,
     planType: PlanType = 'free',
-    language: Language = 'en',
+    language: Language,
     purpose: Purpose = 'product'
   ): string {
     console.log('Building prompt with data:', {
