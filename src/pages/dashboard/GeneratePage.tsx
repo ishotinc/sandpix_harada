@@ -15,6 +15,7 @@ import { useToast } from '../../components/ui/ToastProvider';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
 import { Project } from '../../types/project';
 import { PurposeType } from '../../lib/constants/purposes';
+import { ArrowLeft } from 'lucide-react';
 
 interface SwipeResult {
   image: SwipeImage;
@@ -382,6 +383,17 @@ export default function GeneratePage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
+        {/* Back button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/projects')}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </button>
+        </div>
+        
         {/* Show usage counter at the top */}
         <div className="mb-6">
           <UsageCounter refreshTrigger={usageRefreshTrigger} />

@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useToast } from '../../components/ui/ToastProvider';
 import { Project } from '../../types/project';
-import { Save, RefreshCw, Eye, Code, ExternalLink, Globe } from 'lucide-react';
+import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
 
 export default function ProjectEditPage() {
@@ -20,6 +20,7 @@ export default function ProjectEditPage() {
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
+  const [copied, setCopied] = useState(false);
   
   const [formData, setFormData] = useState({
     service_name: '',
@@ -110,6 +111,16 @@ export default function ProjectEditPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const copyPublicUrl = async () => {
+    if (project?.is_published) {
+      const url = `${window.location.origin}/p/${project.id}`;
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      showToast('success', 'URL copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -132,13 +143,21 @@ export default function ProjectEditPage() {
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{project.service_name}</h1>
-            <p className="text-gray-600 mt-2">Edit your landing page project</p>
-          </div>
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/projects')}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Projects
+          </button>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{project.service_name}</h1>
+              <p className="text-gray-600 mt-2">Edit your landing page project</p>
+            </div>
           
-          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
             {project.is_published && (
               <a
                 href={`/p/${project.id}`}
@@ -166,8 +185,9 @@ export default function ProjectEditPage() {
               loading={saving}
             >
               <Save className="w-4 h-4 mr-2" />
-              Save Changes
+              Save
             </Button>
+            </div>
           </div>
         </div>
 
@@ -234,11 +254,11 @@ export default function ProjectEditPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Publishing Settings</h2>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Published</h3>
-                    <p className="text-sm text-gray-600">Make this landing page live</p>
+                    <h3 className="font-medium text-gray-900">Publish Landing Page</h3>
+                    <p className="text-sm text-gray-600">Make this landing page publicly accessible</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -251,27 +271,34 @@ export default function ProjectEditPage() {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Public Access</h3>
-                    <p className="text-sm text-gray-600">Allow public access via URL</p>
+                {formData.is_published && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-green-900 mb-1">Public URL</h4>
+                        <p className="text-sm text-green-700 font-mono break-all">
+                          {`${window.location.origin}/p/${project.id}`}
+                        </p>
+                      </div>
+                      <button
+                        onClick={copyPublicUrl}
+                        className="ml-3 flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                      >
+                        {copied ? (
+                          <><Check className="w-4 h-4 mr-1" /> Copied</>
+                        ) : (
+                          <><Copy className="w-4 h-4 mr-1" /> Copy URL</>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_public}
-                      onChange={(e) => handleChange('is_public', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Preview Section */}
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-0">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Preview</h2>
               
@@ -301,7 +328,7 @@ export default function ProjectEditPage() {
               </div>
             </div>
 
-            <div className="h-[600px]">
+            <div className="h-[600px] mb-0">
               {viewMode === 'preview' ? (
                 project.generated_html ? (
                   <iframe
