@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { createGeminiClient } from './gemini-client.ts'
 import { generateFinalPrompt } from './prompt-generator.ts'
 import { PLAN_LIMITS } from '../_shared/constants.ts'
+import { logger } from '../_shared/logger.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -145,7 +146,7 @@ serve(async (req) => {
     const geminiClient = createGeminiClient(geminiApiKey)
 
     // Generate comprehensive prompt with language and purpose
-    console.log('Generating prompt with data:', {
+    logger.info('Generating prompt', {
       projectDataKeys: Object.keys(projectData),
       swipeScoresKeys: Object.keys(swipeScores),
       language,
@@ -155,11 +156,13 @@ serve(async (req) => {
     
     const prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType, language, purpose)
     
-    console.log('Generated prompt length:', prompt.length)
-    console.log('Prompt preview (first 500 chars):', prompt.substring(0, 500))
+    logger.info('Prompt generated successfully', {
+      length: prompt.length,
+      preview: prompt.substring(0, 500)
+    })
 
     // Generate landing page HTML using Gemini AI
-    console.log('Generating landing page with AI...')
+    logger.info('Starting AI generation')
     let html: string
     let generationError: string | null = null
     
@@ -200,7 +203,7 @@ serve(async (req) => {
       if (planType === 'plus') {
         const { error: rpcError } = await supabaseServiceClient.rpc('increment_project_count', { user_id: user.id })
         if (rpcError) {
-          console.error('Failed to increment project count:', rpcError)
+          logger.error('Failed to increment project count', rpcError)
         }
       }
     }
@@ -222,7 +225,7 @@ serve(async (req) => {
     })
 
   } catch (error) {
-    console.error('Generation error:', error)
+    logger.error('Generation error', error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
