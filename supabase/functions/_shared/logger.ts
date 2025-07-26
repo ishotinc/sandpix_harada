@@ -1,6 +1,5 @@
-import { Logger } from './types.ts';
-
-class ConsoleLogger implements Logger {
+// Simple logger without external dependencies
+class ConsoleLogger {
   private formatMessage(level: string, message: string, data?: unknown): string {
     const timestamp = new Date().toISOString();
     const baseMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;

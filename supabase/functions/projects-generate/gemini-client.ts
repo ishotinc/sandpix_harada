@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.24.1';\nimport { logger } from '../_shared/logger.ts';
+import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.24.1';\n// Removed logger import to fix deployment issues
 
 export function createGeminiClient(apiKey: string) {
   if (!apiKey) {
@@ -20,21 +20,20 @@ export function createGeminiClient(apiKey: string) {
   return {
     async generateLandingPage(prompt: string): Promise<string> {
       try {
-        logger.info('Generating landing page with Gemini AI', {
-          promptLength: prompt.length,
-          containsSwipeScores: prompt.includes('スワイプスコアランキング'),
-          containsCriticalInstructions: prompt.includes('最終必須実装事項'),
-          promptPreview: prompt.substring(prompt.length - 500)
-        });
+        console.log('Generating landing page with Gemini AI...');
+        console.log('Prompt length sent to Gemini:', prompt.length);
+        console.log('=== GEMINI PROMPT PREVIEW ===');
+        console.log('Prompt contains swipe scores:', prompt.includes('スワイプスコアランキング'));
+        console.log('Prompt contains critical instructions:', prompt.includes('最終必須実装事項'));
+        console.log('Last 500 chars of prompt:', prompt.substring(prompt.length - 500));
+        console.log('=== GEMINI PROMPT PREVIEW END ===');
         
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const generatedText = response.text();
         
-        logger.info('Gemini response received', {
-          responseLength: generatedText.length,
-          responsePreview: generatedText.substring(0, 200)
-        });
+        console.log('Gemini response length:', generatedText.length);
+        console.log('Gemini response preview (first 200 chars):', generatedText.substring(0, 200));
         
         // Extract HTML from the response
         // Gemini might wrap the HTML in markdown code blocks
@@ -52,7 +51,7 @@ export function createGeminiClient(apiKey: string) {
         
         throw new Error('Generated content does not appear to be valid HTML');
       } catch (error) {
-        logger.error('Gemini API Error', error);
+        console.error('Gemini API Error:', error);
         throw new Error(`Failed to generate landing page: ${error.message}`);
       }
     }

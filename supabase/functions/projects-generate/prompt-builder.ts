@@ -39,7 +39,7 @@ type SwipeScores = {
 type PlanType = 'free' | 'plus';
 type Language = 'ja' | 'en';
 type Purpose = 'product' | 'lead' | 'service' | 'brand' | 'event';
-import { logger } from '../_shared/logger.ts';
+// Removed logger import to fix deployment issues
 
 export class PromptBuilder {
   private template: string;
@@ -56,7 +56,7 @@ export class PromptBuilder {
     language: Language = 'en',
     purpose: Purpose = 'product'
   ): string {
-    logger.debug('Building prompt', {
+    console.log('Building prompt with data:', {
       projectData: Object.keys(projectData),
       profileData: Object.keys(profileData || {}),
       swipeScores: Object.keys(swipeScores || {}),
@@ -109,11 +109,9 @@ export class PromptBuilder {
       prompt = this.addFreeUserFooter(prompt, language);
     }
 
-    logger.info('Prompt built successfully', {
-      length: prompt.length,
-      containsSwipeScores: prompt.includes('スワイプスコアランキング'),
-      containsCriticalInstructions: prompt.includes('最終必須実装事項')
-    });
+    console.log('Prompt built successfully:', prompt.length, 'characters');
+    console.log('Contains swipe scores:', prompt.includes('スワイプスコアランキング'));
+    console.log('Contains critical instructions:', prompt.includes('最終必須実装事項'));
 
     return prompt;
   }

@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { createGeminiClient } from './gemini-client.ts'
 import { generateFinalPrompt } from './prompt-generator.ts'
 import { PLAN_LIMITS } from '../_shared/constants.ts'
-import { logger } from '../_shared/logger.ts'
+// Removed logger import to fix deployment issues
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -146,7 +146,7 @@ serve(async (req) => {
     const geminiClient = createGeminiClient(geminiApiKey)
 
     // Generate comprehensive prompt with language and purpose
-    logger.info('Generating prompt', {
+    console.log('Generating prompt with data:', {
       projectDataKeys: Object.keys(projectData),
       swipeScoresKeys: Object.keys(swipeScores),
       language,
@@ -156,13 +156,15 @@ serve(async (req) => {
     
     const prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType, language, purpose)
     
-    logger.info('Prompt generated successfully', {
+    console.log('Generated prompt length:', prompt.length);
+    console.log('Prompt preview (first 500 chars):', prompt.substring(0, 500));
+    console.log('Prompt generated successfully with', {
       length: prompt.length,
       preview: prompt.substring(0, 500)
     })
 
     // Generate landing page HTML using Gemini AI
-    logger.info('Starting AI generation')
+    console.log('Generating landing page with AI...')
     let html: string
     let generationError: string | null = null
     
@@ -203,7 +205,7 @@ serve(async (req) => {
       if (planType === 'plus') {
         const { error: rpcError } = await supabaseServiceClient.rpc('increment_project_count', { user_id: user.id })
         if (rpcError) {
-          logger.error('Failed to increment project count', rpcError)
+          console.error('Failed to increment project count:', rpcError)
         }
       }
     }
@@ -225,7 +227,7 @@ serve(async (req) => {
     })
 
   } catch (error) {
-    logger.error('Generation error', error)
+    console.error('Generation error:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
