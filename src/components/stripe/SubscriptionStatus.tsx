@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getUserSubscription } from '@/lib/stripe/client';
-import { getProductByPriceId } from '@/stripe-config';
+import { getProductByPriceId } from '@/lib/stripe-config';
 import { Crown, Calendar, CreditCard } from 'lucide-react';
 
 interface SubscriptionData {

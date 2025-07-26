@@ -137,6 +137,9 @@ export default function ProjectsPage() {
                       {project.service_name}
                     </h3>
                     <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {project.language === 'ja' ? '日本語' : 'English'}
+                      </span>
                       {project.is_published ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           Published

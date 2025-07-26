@@ -13,6 +13,8 @@ interface ProjectFormData {
   main_copy: string;
   cta_text: string;
   service_achievements: string;
+  language?: 'en' | 'ja';
+  purpose?: 'product' | 'brand' | 'service' | 'lead' | 'event';
 }
 
 interface BasicInfoModalProps {
@@ -22,12 +24,14 @@ interface BasicInfoModalProps {
   initialData?: Partial<ProjectFormData>;
 }
 
-export function BasicInfoModal({ isOpen, onClose, onSubmit }: BasicInfoModalProps) {
+export function BasicInfoModal({ isOpen, onClose, onSubmit, initialData }: BasicInfoModalProps) {
   const [formData, setFormData] = useState({
-    service_name: '',
-    service_description: '',
-    redirect_url: '',
-    cta_text: 'Get Started',
+    service_name: initialData?.service_name || '',
+    service_description: initialData?.service_description || '',
+    redirect_url: initialData?.redirect_url || '',
+    cta_text: initialData?.cta_text || 'Get Started',
+    language: (initialData?.language || 'en') as 'en' | 'ja',
+    purpose: (initialData?.purpose || 'product') as 'product' | 'brand' | 'service' | 'lead' | 'event',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { showToast } = useToast();
@@ -72,6 +76,39 @@ export function BasicInfoModal({ isOpen, onClose, onSubmit }: BasicInfoModalProp
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Project Information" size="lg">
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Language *
+            </label>
+            <select
+              value={formData.language}
+              onChange={(e) => handleChange('language', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Purpose *
+            </label>
+            <select
+              value={formData.purpose}
+              onChange={(e) => handleChange('purpose', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="product">Product</option>
+              <option value="brand">Brand</option>
+              <option value="service">Service</option>
+              <option value="lead">Lead</option>
+              <option value="event">Event</option>
+            </select>
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Service/Product Name *

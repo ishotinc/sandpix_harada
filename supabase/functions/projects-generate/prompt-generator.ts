@@ -58,8 +58,8 @@ export function generateFinalPrompt(
   // 言語設定
   const languageCode = language === 'ja' ? 'ja' : 'en';
   const languageInstruction = language === 'ja' 
-    ? '日本語' 
-    : '英語';
+    ? '日本語（必ず日本語のみで全てのコンテンツを作成）' 
+    : '英語（必ず英語のみで全てのコンテンツを作成）';
 
   // スワイプスコアをテキスト形式に変換
   const scoresText = Object.entries(swipeScores)

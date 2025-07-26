@@ -24,7 +24,8 @@ export default function ProjectEditPage() {
   
   const [formData, setFormData] = useState({
     service_name: '',
-    purpose: 'service',
+    purpose: 'service' as 'product' | 'brand' | 'service' | 'lead' | 'event',
+    language: 'en' as 'en' | 'ja',
     service_description: '',
     redirect_url: '',
     cta_text: 'Get Started',
@@ -55,6 +56,7 @@ export default function ProjectEditPage() {
         setFormData({
           service_name: data.project.service_name || '',
           purpose: data.project.purpose || 'service',
+          language: data.project.language || 'en',
           service_description: data.project.service_description || '',
           redirect_url: data.project.redirect_url || '',
           cta_text: data.project.cta_text || 'Get Started',
@@ -191,6 +193,48 @@ export default function ProjectEditPage() {
           </div>
         </div>
 
+        {/* Publishing Settings at the top */}
+        {formData.is_published && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h4 className="font-medium text-green-900 mb-1">Public URL</h4>
+                <p className="text-sm text-green-700 font-mono break-all">
+                  {`${window.location.origin}/p/${project.id}`}
+                </p>
+              </div>
+              <button
+                onClick={copyPublicUrl}
+                className="ml-3 flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+              >
+                {copied ? (
+                  <><Check className="w-4 h-4 mr-1" /> Copied</>
+                ) : (
+                  <><Copy className="w-4 h-4 mr-1" /> Copy URL</>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6 bg-white rounded-2xl shadow-lg p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900">Publish Landing Page</h3>
+              <p className="text-sm text-gray-600">Make this landing page publicly accessible</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.is_published}
+                onChange={(e) => handleChange('is_published', e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Form Section */}
           <div className="space-y-6">
@@ -205,21 +249,37 @@ export default function ProjectEditPage() {
                   placeholder="Your service or product name"
                 />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Purpose
-                  </label>
-                  <select
-                    value={formData.purpose}
-                    onChange={(e) => handleChange('purpose', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="service">Service Introduction</option>
-                    <option value="product">Product Sales</option>
-                    <option value="brand">Brand/Company</option>
-                    <option value="lead">Lead Generation</option>
-                    <option value="event">Event Promotion</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Language
+                    </label>
+                    <select
+                      value={formData.language}
+                      onChange={(e) => handleChange('language', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="en">English</option>
+                      <option value="ja">日本語</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Purpose
+                    </label>
+                    <select
+                      value={formData.purpose}
+                      onChange={(e) => handleChange('purpose', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="product">Product</option>
+                      <option value="brand">Brand</option>
+                      <option value="service">Service</option>
+                      <option value="lead">Lead</option>
+                      <option value="event">Event</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -251,50 +311,6 @@ export default function ProjectEditPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Publishing Settings</h2>
-              
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Publish Landing Page</h3>
-                    <p className="text-sm text-gray-600">Make this landing page publicly accessible</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_published}
-                      onChange={(e) => handleChange('is_published', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                {formData.is_published && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-green-900 mb-1">Public URL</h4>
-                        <p className="text-sm text-green-700 font-mono break-all">
-                          {`${window.location.origin}/p/${project.id}`}
-                        </p>
-                      </div>
-                      <button
-                        onClick={copyPublicUrl}
-                        className="ml-3 flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                      >
-                        {copied ? (
-                          <><Check className="w-4 h-4 mr-1" /> Copied</>
-                        ) : (
-                          <><Copy className="w-4 h-4 mr-1" /> Copy URL</>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Preview Section */}

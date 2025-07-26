@@ -125,17 +125,6 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
             Save Project
           </Button>
 
-          {projectId && !isPublished && onPublish && (
-            <Button
-              variant="gradient"
-              onClick={onPublish}
-              disabled={loading}
-              className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
-            >
-              <Globe className="w-4 h-4 mr-2" />
-              Publish
-            </Button>
-          )}
         </div>
       </div>
 
@@ -177,7 +166,7 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
             <li>• Review the generated landing page</li>
             <li>• Click "Regenerate" if you want to try a different version</li>
             <li>• Click "Save Project" to save and continue editing</li>
-            <li>• After saving, you can publish your landing page</li>
+            <li>• After saving, you can publish your landing page from the project edit page</li>
           </ul>
         </div>
       )}
