@@ -12,7 +12,8 @@ import {
   Crown,
   CreditCard,
   Settings,
-  Home
+  Home,
+  Sparkles
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -206,12 +207,10 @@ export function SidebarNavigation({ children }: SidebarNavigationProps) {
 
             {/* Sandpix logo */}
             <Link to="/projects" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">S</span>
+              <div className="w-8 h-8 text-gradient rounded-lg flex items-center justify-center bg-gray-100">
+                <Sparkles className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Sandpix
-              </span>
+              <span className="text-xl font-bold text-gradient">Sandpix</span>
             </Link>
           </div>
         </div>
