@@ -1,21 +1,48 @@
 import { SwipeScores, SwipeImage } from '@/types/project';
+import { APP_CONFIG } from '@/lib/config';
 
 function normalizeScores(rawScores: SwipeScores) {
-  // 1. 最高値を取得
-  const maxScore = Math.max(...Object.values(rawScores));
+  // 1. 最小値と最大値を取得
+  const scores = Object.values(rawScores);
+  const minScore = Math.min(...scores);
+  const maxScore = Math.max(...scores);
   
-  // 2. 各項目を最高値に対する比率に変換
+  // 2. Min-Max正規化（0-100の範囲に変換）
   const normalizedScores: Record<string, string> = {};
   for (const [key, value] of Object.entries(rawScores)) {
-    normalizedScores[key] = (value / maxScore * 100).toFixed(1);
+    if (maxScore === minScore) {
+      // すべて同じ値の場合は50にする
+      normalizedScores[key] = '50.0';
+    } else {
+      const normalized = ((value - minScore) / (maxScore - minScore)) * 100;
+      normalizedScores[key] = normalized.toFixed(1);
+    }
   }
+  
+  // 3. ランキングを計算（降順）
+  const scoreEntries = Object.entries(rawScores)
+    .sort((a, b) => b[1] - a[1])
+    .map((entry, index) => ({
+      key: entry[0],
+      value: entry[1],
+      rank: index + 1
+    }));
   
   return {
     normalized: normalizedScores,
+    minValue: minScore,
     maxValue: maxScore,
-    dominant: Object.keys(rawScores).find(key => rawScores[key] === maxScore)
+    dominant: scoreEntries[0]?.key || null,
+    ranking: scoreEntries
   };
 }
+
+// DEPRECATED: この関数はエッジ関数に統一されました
+// 新しいシステムでは、生のスワイプデータをエッジ関数に送信し、
+// エッジ関数側で計算を行います。
+// 
+// クライアント側では表示用の簡易計算のみ行い、
+// 正式な計算はエッジ関数で実行されます。
 
 export function calculateSwipeScores(swipes: Array<{ image: SwipeImage; liked: boolean }>): SwipeScores {
   const scores: SwipeScores = {
@@ -65,6 +92,23 @@ export function calculateSwipeScores(swipes: Array<{ image: SwipeImage; liked: b
   return normalizedScores;
 }
 
+// 新しい関数: エッジ関数用のスワイプデータ形式に変換
+export function prepareSwipeDataForEdgeFunction(swipes: Array<{ image: SwipeImage; liked: boolean }>): Array<{ imageId: number; liked: boolean }> {
+  return swipes.map(({ image, liked }) => ({
+    imageId: image.id,
+    liked
+  }));
+}
+
+// 新しい関数: クライアント側でのプレビュー用簡易計算
+// 注意: 正式な計算はエッジ関数で行われます。これは表示用の近似値です。
+export function calculateSwipeScoresPreview(swipes: Array<{ image: SwipeImage; liked: boolean }>): SwipeScores {
+  console.warn('⚠️ この計算はプレビュー用です。正式な計算はエッジ関数で行われます。');
+  
+  // エッジ関数と同じロジックを使用（簡易版）
+  return calculateSwipeScores(swipes);
+}
+
 export function getStyleDescription(scores: SwipeScores): string {
   const descriptions: string[] = [];
 
@@ -75,29 +119,31 @@ export function getStyleDescription(scores: SwipeScores): string {
     descriptions.push('cool colors');
   }
 
-  if (scores.vivid_score > 50) {
+  const { significant, strong } = APP_CONFIG.scoring.thresholds;
+  
+  if (scores.vivid_score > significant) {
     descriptions.push('vibrant and colorful');
-  } else if (scores.mono_score > 50) {
+  } else if (scores.mono_score > significant) {
     descriptions.push('monochrome and elegant');
   }
 
-  // Atmosphere preferences (using 60% threshold for strong preferences)
-  if (scores.friendly_score > 60) {
+  // Atmosphere preferences (using strong threshold for strong preferences)
+  if (scores.friendly_score > strong) {
     descriptions.push('friendly and approachable');
   }
-  if (scores.professional_score > 60) {
+  if (scores.professional_score > strong) {
     descriptions.push('professional and trustworthy');
   }
-  if (scores.creative_score > 60) {
+  if (scores.creative_score > strong) {
     descriptions.push('creative and innovative');
   }
-  if (scores.minimal_score > 60) {
+  if (scores.minimal_score > strong) {
     descriptions.push('minimal and clean');
   }
-  if (scores.energetic_score > 60) {
+  if (scores.energetic_score > strong) {
     descriptions.push('energetic and dynamic');
   }
-  if (scores.luxurious_score > 60) {
+  if (scores.luxurious_score > strong) {
     descriptions.push('luxurious and premium');
   }
 
@@ -108,39 +154,104 @@ export function getStyleDescription(scores: SwipeScores): string {
 
 export function getPromptModifiers(scores: SwipeScores): string {
   const modifiers: string[] = [];
+  
+  // ランキングを計算
+  const scoreEntries = Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .map((entry, index) => ({
+      key: entry[0],
+      value: entry[1],
+      rank: index + 1
+    }));
+  
+  // 1位（メインテーマ）
+  const mainTheme = scoreEntries[0];
+  if (mainTheme) {
+    switch (mainTheme.key) {
+      case 'warm_score':
+        modifiers.push('【メインテーマ】暖色系カラーパレット（オレンジ、レッド、イエロー）を中心に構成');
+        break;
+      case 'cool_score':
+        modifiers.push('【メインテーマ】寒色系カラーパレット（ブルー、グリーン、パープル）を中心に構成');
+        break;
+      case 'mono_score':
+        modifiers.push('【メインテーマ】モノクローム配色で洗練されたデザイン');
+        break;
+      case 'vivid_score':
+        modifiers.push('【メインテーマ】鮮やかで彩度の高い色使いのビビッドなデザイン');
+        break;
+      case 'friendly_score':
+        modifiers.push('【メインテーマ】フレンドリーで親しみやすい、丸みのあるデザイン');
+        break;
+      case 'professional_score':
+        modifiers.push('【メインテーマ】プロフェッショナルで信頼感のある、ビジネス向けデザイン');
+        break;
+      case 'creative_score':
+        modifiers.push('【メインテーマ】クリエイティブで革新的な、独創的なレイアウト');
+        break;
+      case 'minimal_score':
+        modifiers.push('【メインテーマ】ミニマルデザイン、大量の余白とシンプルな要素');
+        break;
+      case 'energetic_score':
+        modifiers.push('【メインテーマ】エネルギッシュで動的な、ハイテンションなデザイン');
+        break;
+      case 'trustworthy_score':
+        modifiers.push('【メインテーマ】信頼性と安心感を与える、堅実なデザイン');
+        break;
+      case 'luxurious_score':
+        modifiers.push('【メインテーマ】高級感と洗練、プレミアムなデザイン');
+        break;
+      case 'approachable_score':
+        modifiers.push('【メインテーマ】親近感があり話しかけやすい、オープンなデザイン');
+        break;
+    }
+  }
+  
+  // 2位（サブテーマ）
+  const subTheme = scoreEntries[1];
+  if (subTheme) {
+    switch (subTheme.key) {
+      case 'warm_score':
+        modifiers.push('【サブテーマ】暖かみのある色をアクセントに使用');
+        break;
+      case 'cool_score':
+        modifiers.push('【サブテーマ】クールな色合いをアクセントに使用');
+        break;
+      case 'mono_score':
+        modifiers.push('【サブテーマ】モノトーンの要素を部分的に取り入れる');
+        break;
+      case 'vivid_score':
+        modifiers.push('【サブテーマ】鮮やかな色をポイントで使用');
+        break;
+      case 'friendly_score':
+        modifiers.push('【サブテーマ】親しみやすい要素を随所に配置');
+        break;
+      case 'professional_score':
+        modifiers.push('【サブテーマ】プロフェッショナルな要素で信頼性を補強');
+        break;
+      case 'creative_score':
+        modifiers.push('【サブテーマ】創造的なアクセントを加える');
+        break;
+      case 'minimal_score':
+        modifiers.push('【サブテーマ】ミニマルな要素でバランスを取る');
+        break;
+      case 'energetic_score':
+        modifiers.push('【サブテーマ】活気のある要素でアクセントを加える');
+        break;
+      case 'trustworthy_score':
+        modifiers.push('【サブテーマ】信頼感を高める要素を追加');
+        break;
+      case 'luxurious_score':
+        modifiers.push('【サブテーマ】高級感のあるディテールを加える');
+        break;
+      case 'approachable_score':
+        modifiers.push('【サブテーマ】親近感のある要素でバランスを取る');
+        break;
+    }
+  }
+  
+  // 6位以下は完全に無視することを明記
+  modifiers.push('\n【重要】ランキング6位以下の要素は一切デザインに反映しないこと');
 
-  // Color system modifiers
-  if (scores.warm_score > scores.cool_score) {
-    modifiers.push('Use warm color palette (oranges, reds, yellows)');
-  } else if (scores.cool_score > scores.warm_score) {
-    modifiers.push('Use cool color palette (blues, greens, purples)');
-  }
-
-  if (scores.vivid_score > scores.mono_score) {
-    modifiers.push('Use vibrant, saturated colors');
-  } else if (scores.mono_score > scores.vivid_score) {
-    modifiers.push('Use monochrome or limited color palette');
-  }
-
-  // Atmosphere modifiers (using 50% threshold for significant preferences)
-  if (scores.friendly_score > 50) {
-    modifiers.push('Create friendly, approachable design with rounded corners and soft elements');
-  }
-  if (scores.professional_score > 50) {
-    modifiers.push('Maintain professional, business-oriented design with clean lines');
-  }
-  if (scores.creative_score > 50) {
-    modifiers.push('Include creative, innovative design elements and unique layouts');
-  }
-  if (scores.minimal_score > 50) {
-    modifiers.push('Focus on minimal design with lots of white space and simple elements');
-  }
-  if (scores.energetic_score > 50) {
-    modifiers.push('Create dynamic, high-energy design with bold elements');
-  }
-  if (scores.luxurious_score > 50) {
-    modifiers.push('Use premium, sophisticated design with elegant typography');
-  }
-
-  return modifiers.join('. ');
+  return modifiers.join('\n');
 }

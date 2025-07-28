@@ -5,7 +5,7 @@ export const PLAN_LIMITS = {
     displayName: 'Free Plan'
   },
   plus: {
-    maxProjects: Infinity,
+    maxProjects: 5,
     dailyGenerations: 50,
     displayName: 'Plus Plan',
     priceMonthly: 20 // USD

@@ -4,6 +4,7 @@ export interface Project {
   service_name: string;
   redirect_url: string;
   purpose: 'product' | 'service' | 'brand' | 'lead' | 'event';
+  language: 'ja' | 'en';
   service_description: string;
   main_copy: string;
   cta_text: string;
@@ -28,6 +29,7 @@ export interface UpdateProjectData {
   service_name?: string;
   redirect_url?: string;
   purpose?: 'product' | 'service' | 'brand' | 'lead' | 'event';
+  language?: 'ja' | 'en';
   service_description?: string;
   main_copy?: string;
   cta_text?: string;

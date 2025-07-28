@@ -91,17 +91,17 @@ export default function ProjectsPage() {
           />
         )}
         
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Projects</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Projects</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
               Manage your landing pages and create new ones
             </p>
           </div>
-          <Link to="/projects/generate">
-            <Button variant="gradient" size="lg">
-              <Plus className="w-5 h-5 mr-2" />
-              New Generate
+          <Link to="/projects/generate" className="w-full sm:w-auto">
+            <Button variant="gradient" size="lg" className="w-full sm:w-auto">
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <span className="text-sm sm:text-base">New Generate</span>
             </Button>
           </Link>
         </div>
@@ -125,18 +125,18 @@ export default function ProjectsPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+                className="bg-white rounded-lg sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 truncate">
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate pr-2">
                       {project.service_name}
                     </h3>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                       {project.is_published ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           Published
@@ -149,32 +149,32 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                     {project.service_description || "No description"}
                   </p>
 
-                  <div className="text-xs text-gray-500 mb-4">
+                  <div className="text-xs text-gray-500 mb-3 sm:mb-4">
                     Created: {new Date(project.created_at).toLocaleDateString()}
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Link to={`/projects/${project.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="w-4 h-4 mr-1" />
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                    <Link to={`/projects/${project.id}`} className="flex-1 sm:flex-initial">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         Edit
                       </Button>
                     </Link>
 
-                    <Link to={`/p/${project.id}`} target="_blank">
-                      <Button variant="ghost" size="sm">
-                        <ExternalLink className="w-4 h-4 mr-1" />
+                    <Link to={`/p/${project.id}`} target="_blank" className="flex-1 sm:flex-initial">
+                      <Button variant="ghost" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         {project.is_published ? "View" : "Preview"}
                       </Button>
                     </Link>
 
                     <button
                       onClick={() => handleDelete(project.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      className="self-center sm:self-auto p-2 text-gray-400 hover:text-red-600 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

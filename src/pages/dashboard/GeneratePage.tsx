@@ -6,33 +6,28 @@ import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
+import { GenerationProgress } from '../../components/ui/GenerationProgress';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
-import { LanguageSelector } from '../../components/generation/LanguageSelector';
-import { PurposeSelector } from '../../components/generation/PurposeSelector';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
 import { useToast } from '../../components/ui/ToastProvider';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
 import { Project } from '../../types/project';
 import { PurposeType } from '../../lib/constants/purposes';
+import { ProjectGenerationData, SwipeResult } from '../../types/generation';
 import { ArrowLeft } from 'lucide-react';
-
-interface SwipeResult {
-  image: SwipeImage;
-  liked: boolean;
-}
 
 export default function GeneratePage() {
   const [swipeConfig, setSwipeConfig] = useState<{ images: SwipeImage[] } | null>(null);
-  const [currentStep, setCurrentStep] = useState<'options' | 'swipe' | 'info' | 'preview'>('options');
+  const [currentStep, setCurrentStep] = useState<'swipe' | 'info' | 'preview'>('swipe');
   const [swipeResults, setSwipeResults] = useState<SwipeResult[]>([]);
-  const [projectData, setProjectData] = useState<any>(null);
+  const [projectData, setProjectData] = useState<ProjectGenerationData | null>(null);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
-  const [language, setLanguage] = useState<'ja' | 'en'>('ja');
+  const [language, setLanguage] = useState<'ja' | 'en'>('en');
   const [purpose, setPurpose] = useState<PurposeType>('product');
   const [usageRefreshTrigger, setUsageRefreshTrigger] = useState(0);
   const [hitGenerationLimit, setHitGenerationLimit] = useState(false);
@@ -75,10 +70,17 @@ export default function GeneratePage() {
           custom_head: data.project.custom_head,
           custom_body: data.project.custom_body,
         });
+        // Set language and purpose from saved project
+        if (data.project.language) {
+          setLanguage(data.project.language);
+        }
+        if (data.project.purpose) {
+          setPurpose(data.project.purpose);
+        }
         setIsPublished(data.project.is_published);
         setIsRegenerating(true);
-        // Skip to options step for regeneration
-        setCurrentStep('options');
+        // Skip to swipe step for regeneration
+        setCurrentStep('swipe');
       } else {
         showToast('error', 'Failed to load project for regeneration');
         navigate('/projects');
@@ -168,14 +170,26 @@ export default function GeneratePage() {
     }
   };
 
-  const handleInfoSubmit = async (data: any) => {
-    const projectDataWithPurpose = { ...data, purpose };
+  const handleInfoSubmit = async (data: ProjectGenerationData & { language: 'ja' | 'en'; purpose: PurposeType }) => {
+    // Extract language and purpose from data
+    const { language: formLanguage, purpose: formPurpose, ...projectInfo } = data;
+    const finalLanguage = formLanguage || 'en';
+    const finalPurpose = formPurpose || 'product';
+    
+    setLanguage(finalLanguage);
+    setPurpose(finalPurpose);
+    
+    const projectDataWithPurpose: ProjectGenerationData = { 
+      ...projectInfo, 
+      purpose: finalPurpose,
+      language: finalLanguage
+    };
     setProjectData(projectDataWithPurpose);
     setCurrentStep('preview');
-    await generateLandingPage(projectDataWithPurpose);
+    await generateLandingPage(projectDataWithPurpose, finalLanguage, finalPurpose);
   };
 
-  const generateLandingPage = async (data: any) => {
+  const generateLandingPage = async (data: ProjectGenerationData, overrideLanguage?: 'ja' | 'en', overridePurpose?: PurposeType) => {
     setLoading(true);
     try {
       const swipeScores = calculateSwipeScores(swipeResults);
@@ -192,11 +206,14 @@ export default function GeneratePage() {
         return;
       }
       
+      const finalLanguage = overrideLanguage || language;
+      const finalPurpose = overridePurpose || purpose;
+      
       console.log('Sending request to generate landing page:', {
         projectData: data,
         swipeScores,
-        language,
-        purpose
+        language: finalLanguage,
+        purpose: finalPurpose
       });
       
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/projects-generate`, {
@@ -208,8 +225,8 @@ export default function GeneratePage() {
         body: JSON.stringify({
           projectData: data,
           swipeScores,
-          language,
-          purpose,
+          language: finalLanguage,
+          purpose: finalPurpose,
         }),
       });
 
@@ -234,7 +251,7 @@ export default function GeneratePage() {
         setUsageRefreshTrigger(prev => prev + 1);
         
         // Auto-save the generated landing page
-        await autoSaveProject(data, result.html);
+        await autoSaveProject(data, result.html, finalLanguage);
       } else if (response.status === 429 || response.status === 403) {
         // Handle rate limit error (429) or forbidden due to limit (403)
         showToast('error', result.message || 'Daily generation limit reached');
@@ -252,11 +269,12 @@ export default function GeneratePage() {
     }
   };
 
-  const autoSaveProject = async (data: any, html: string) => {
+  const autoSaveProject = async (data: ProjectGenerationData, html: string, saveLanguage?: 'ja' | 'en') => {
     try {
       const headers = await getAuthHeaders();
       const projectPayload = {
         ...data,
+        language: saveLanguage || language,
         generated_html: html,
         is_published: false, // Auto-saved as draft
       };
@@ -302,6 +320,7 @@ export default function GeneratePage() {
       const headers = await getAuthHeaders();
       const projectPayload = {
         ...projectData,
+        language,
         generated_html: generatedHtml,
         is_published: false, // Keep as draft when saving
       };
@@ -399,24 +418,6 @@ export default function GeneratePage() {
           <UsageCounter refreshTrigger={usageRefreshTrigger} />
         </div>
         
-        {currentStep === 'options' && (
-          <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {language === 'ja' ? 'LP生成オプション' : 'LP Generation Options'}
-            </h1>
-            <div className="bg-white rounded-lg shadow p-6 space-y-6">
-              <LanguageSelector value={language} onChange={setLanguage} />
-              <PurposeSelector value={purpose} onChange={setPurpose} language={language} />
-              <button
-                onClick={() => setCurrentStep('swipe')}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                {language === 'ja' ? '次へ' : 'Next'}
-              </button>
-            </div>
-          </div>
-        )}
-        
         {currentStep === 'swipe' && (
           <SwipeContainer
             images={swipeConfig.images}
@@ -433,7 +434,7 @@ export default function GeneratePage() {
           />
         )}
 
-        {currentStep === 'preview' && (
+        {currentStep === 'preview' && !loading && (
           <GeneratePreview
             html={generatedHtml}
             loading={loading}
@@ -443,6 +444,17 @@ export default function GeneratePage() {
             isPublished={isPublished}
             onPublish={handlePublishProject}
             showGenerationLimitBanner={hitGenerationLimit}
+          />
+        )}
+
+        {currentStep === 'preview' && loading && (
+          <GenerationProgress
+            isGenerating={loading}
+            onComplete={() => {
+              // Progress complete callback - this will be called after 60 seconds
+              // The actual generation might finish earlier via the API response
+            }}
+            totalDuration={60}
           />
         )}
       </div>

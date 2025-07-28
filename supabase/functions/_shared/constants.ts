@@ -8,7 +8,7 @@ export const PLAN_LIMITS = {
     maxProjects: 5,
     dailyGenerations: 50,
     displayName: 'Plus Plan',
-    priceMonthly: 2980 // JPY
+    priceMonthly: 20 // USD
   }
 } as const;
 

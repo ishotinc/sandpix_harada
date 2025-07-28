@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/ToastProvider';
 import { createCheckoutSession } from '@/lib/stripe/client';
-import { StripeProduct } from '@/stripe-config';
+import { StripeProduct } from '@/lib/stripe-config';
 import { ShoppingCart, Loader2 } from 'lucide-react';
 
 interface ProductCardProps {

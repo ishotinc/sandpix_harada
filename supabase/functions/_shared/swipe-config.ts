@@ -1,4 +1,38 @@
-{
+// スワイプ設定とスコア計算のエッジ関数版
+// この設定はpublic/swipe-config.jsonと同期する必要があります
+
+export interface SwipeImage {
+  id: number;
+  title: string;
+  description: string;
+  visual_hints: string;
+  path: string;
+  scores: SwipeScores;
+}
+
+export interface SwipeScores {
+  warm_score: number;
+  cool_score: number;
+  mono_score: number;
+  vivid_score: number;
+  friendly_score: number;
+  professional_score: number;
+  creative_score: number;
+  minimal_score: number;
+  energetic_score: number;
+  trustworthy_score: number;
+  luxurious_score: number;
+  approachable_score: number;
+}
+
+export interface SwipeConfig {
+  version: string;
+  images: SwipeImage[];
+}
+
+// スワイプ設定データ
+// Note: この設定はpublic/swipe-config.jsonと同期してください
+export const SWIPE_CONFIG: SwipeConfig = {
   "version": "1.0.0",
   "images": [
     {
@@ -254,4 +288,136 @@
       }
     }
   ]
+};
+
+// スコア計算関数（クライアントのscoring.tsと同じロジック）
+export function normalizeScores(rawScores: SwipeScores) {
+  // 1. 最小値と最大値を取得
+  const scores = Object.values(rawScores);
+  const minScore = Math.min(...scores);
+  const maxScore = Math.max(...scores);
+  
+  // 2. Min-Max正規化（0-100の範囲に変換）
+  const normalizedScores: Record<string, string> = {};
+  for (const [key, value] of Object.entries(rawScores)) {
+    if (maxScore === minScore) {
+      // すべて同じ値の場合は50にする
+      normalizedScores[key] = '50.0';
+    } else {
+      const normalized = ((value - minScore) / (maxScore - minScore)) * 100;
+      normalizedScores[key] = normalized.toFixed(1);
+    }
+  }
+  
+  // 3. ランキングを計算（降順）
+  const scoreEntries = Object.entries(rawScores)
+    .sort((a, b) => b[1] - a[1])
+    .map((entry, index) => ({
+      key: entry[0],
+      value: entry[1],
+      rank: index + 1
+    }));
+  
+  return {
+    normalized: normalizedScores,
+    minValue: minScore,
+    maxValue: maxScore,
+    dominant: scoreEntries[0]?.key || null,
+    ranking: scoreEntries
+  };
+}
+
+export function calculateSwipeScores(swipes: Array<{ imageId: number; liked: boolean }>): SwipeScores {
+  const scores: SwipeScores = {
+    warm_score: 0,
+    cool_score: 0,
+    mono_score: 0,
+    vivid_score: 0,
+    friendly_score: 0,
+    professional_score: 0,
+    creative_score: 0,
+    minimal_score: 0,
+    energetic_score: 0,
+    trustworthy_score: 0,
+    luxurious_score: 0,
+    approachable_score: 0,
+  };
+
+  // Only count liked images
+  swipes.forEach(({ imageId, liked }) => {
+    if (liked) {
+      const image = SWIPE_CONFIG.images.find(img => img.id === imageId);
+      if (image) {
+        Object.keys(image.scores).forEach((key) => {
+          const scoreKey = key as keyof SwipeScores;
+          scores[scoreKey] += image.scores[scoreKey];
+        });
+      }
+    }
+  });
+
+  // Normalize the scores to relative evaluation
+  const normalizedResult = normalizeScores(scores);
+  
+  // Convert normalized scores back to SwipeScores format
+  const normalizedScores: SwipeScores = {
+    warm_score: parseFloat(normalizedResult.normalized.warm_score),
+    cool_score: parseFloat(normalizedResult.normalized.cool_score),
+    mono_score: parseFloat(normalizedResult.normalized.mono_score),
+    vivid_score: parseFloat(normalizedResult.normalized.vivid_score),
+    friendly_score: parseFloat(normalizedResult.normalized.friendly_score),
+    professional_score: parseFloat(normalizedResult.normalized.professional_score),
+    creative_score: parseFloat(normalizedResult.normalized.creative_score),
+    minimal_score: parseFloat(normalizedResult.normalized.minimal_score),
+    energetic_score: parseFloat(normalizedResult.normalized.energetic_score),
+    trustworthy_score: parseFloat(normalizedResult.normalized.trustworthy_score),
+    luxurious_score: parseFloat(normalizedResult.normalized.luxurious_score),
+    approachable_score: parseFloat(normalizedResult.normalized.approachable_score),
+  };
+
+  return normalizedScores;
+}
+
+export function getStyleDescription(scores: SwipeScores): string {
+  const descriptions: string[] = [];
+
+  // Color preferences
+  if (scores.warm_score > scores.cool_score) {
+    descriptions.push('warm colors');
+  } else if (scores.cool_score > scores.warm_score) {
+    descriptions.push('cool colors');
+  }
+
+  const significant = 60; // threshold
+  const strong = 75; // threshold
+  
+  if (scores.vivid_score > significant) {
+    descriptions.push('vibrant and colorful');
+  } else if (scores.mono_score > significant) {
+    descriptions.push('monochrome and elegant');
+  }
+
+  // Atmosphere preferences (using strong threshold for strong preferences)
+  if (scores.friendly_score > strong) {
+    descriptions.push('friendly and approachable');
+  }
+  if (scores.professional_score > strong) {
+    descriptions.push('professional and trustworthy');
+  }
+  if (scores.creative_score > strong) {
+    descriptions.push('creative and innovative');
+  }
+  if (scores.minimal_score > strong) {
+    descriptions.push('minimal and clean');
+  }
+  if (scores.energetic_score > strong) {
+    descriptions.push('energetic and dynamic');
+  }
+  if (scores.luxurious_score > strong) {
+    descriptions.push('luxurious and premium');
+  }
+
+  return descriptions.length > 0 
+    ? descriptions.join(', ') 
+    : 'balanced and versatile';
 }

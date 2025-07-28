@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui/ToastProvider';
 import { Project } from '../../types/project';
 import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
+import { BillingModal } from '../../components/ui/BillingModal';
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,10 +22,12 @@ export default function ProjectEditPage() {
   const [regenerating, setRegenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
   const [copied, setCopied] = useState(false);
+  const [showBillingModal, setShowBillingModal] = useState(false);
   
   const [formData, setFormData] = useState({
     service_name: '',
-    purpose: 'service',
+    purpose: 'service' as 'product' | 'brand' | 'service' | 'lead' | 'event',
+    language: 'en' as 'en' | 'ja',
     service_description: '',
     redirect_url: '',
     cta_text: 'Get Started',
@@ -55,6 +58,7 @@ export default function ProjectEditPage() {
         setFormData({
           service_name: data.project.service_name || '',
           purpose: data.project.purpose || 'service',
+          language: data.project.language || 'en',
           service_description: data.project.service_description || '',
           redirect_url: data.project.redirect_url || '',
           cta_text: data.project.cta_text || 'Get Started',
@@ -103,21 +107,100 @@ export default function ProjectEditPage() {
   };
 
   const handleRegenerate = async () => {
-    // Navigate to generate page with project ID for regeneration
-    navigate(`/projects/generate/${id}`);
+    // Save current changes before regenerating to ensure language/purpose are updated
+    setSaving(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${apiEndpoints.projects}/${id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        showToast('success', 'Changes saved. Redirecting to regenerate...');
+        // Navigate to generate page with project ID for regeneration
+        navigate(`/projects/generate/${id}`);
+      } else {
+        const data = await response.json();
+        showToast('error', data.error || 'Failed to save changes before regenerating');
+      }
+    } catch (error) {
+      showToast('error', 'Failed to save changes before regenerating');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleChange = (field: string, value: string | boolean) => {
+    if (field === 'is_published' && value === true) {
+      // Show billing modal when trying to publish
+      setShowBillingModal(true);
+      return;
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handlePublishWithLogo = async () => {
+    setFormData(prev => ({ ...prev, is_published: true }));
+    setShowBillingModal(false);
+    await handleSave();
+  };
+
+  const handleUpgradeClick = () => {
+    setShowBillingModal(false);
+    navigate('/pricing');
+  };
+
   const copyPublicUrl = async () => {
-    if (project?.is_published) {
+    console.log('copyPublicUrl called');
+    console.log('project?.is_published:', project?.is_published);
+    console.log('formData.is_published:', formData.is_published);
+    
+    if (!project?.is_published && !formData.is_published) {
+      console.log('Project not published, showing error');
+      showToast('error', 'Project must be published to copy URL');
+      return;
+    }
+
+    try {
       const url = `${window.location.origin}/p/${project.id}`;
-      await navigator.clipboard.writeText(url);
+      console.log('Attempting to copy URL:', url);
+      console.log('navigator.clipboard available:', !!navigator.clipboard);
+      console.log('isSecureContext:', window.isSecureContext);
+      
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        console.log('URL copied using navigator.clipboard');
+      } else {
+        // Fallback for insecure contexts or older browsers
+        console.log('Using fallback copy method');
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        console.log('Fallback copy success:', success);
+        if (!success) {
+          throw new Error('Fallback copy failed');
+        }
+      }
+      
+      console.log('Setting copied to true');
       setCopied(true);
       showToast('success', 'URL copied to clipboard!');
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => {
+        console.log('Setting copied to false');
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      showToast('error', 'Failed to copy URL to clipboard');
     }
   };
 
@@ -158,38 +241,70 @@ export default function ProjectEditPage() {
             </div>
           
             <div className="flex items-center space-x-4">
-            {project.is_published && (
-              <a
-                href={`/p/${project.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>View Live</span>
-              </a>
-            )}
-            
-            <Button
-              variant="outline"
-              onClick={handleRegenerate}
-              loading={regenerating}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Regenerate
-            </Button>
+              {/* Publish Toggle */}
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-700">Publish</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_published}
+                    onChange={(e) => handleChange('is_published', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
 
-            <Button
-              variant="gradient"
-              onClick={handleSave}
-              loading={saving}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
+              {/* Copy and External Link Icons (only when published) */}
+              {(formData.is_published || project?.is_published) && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      copyPublicUrl();
+                    }}
+                    className="text-gray-600 hover:text-black transition-colors"
+                    title="Copy URL to clipboard"
+                  >
+                    {copied ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      <Copy className="w-5 h-5" />
+                    )}
+                  </button>
+                  <a
+                    href={`/p/${project.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-black transition-colors"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                  </a>
+                </div>
+              )}
+            
+              <Button
+                variant="outline"
+                onClick={handleRegenerate}
+                loading={saving}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Regenerate
+              </Button>
+
+              <Button
+                variant="gradient"
+                onClick={handleSave}
+                loading={saving}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </Button>
             </div>
           </div>
         </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Form Section */}
@@ -205,21 +320,37 @@ export default function ProjectEditPage() {
                   placeholder="Your service or product name"
                 />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Purpose
-                  </label>
-                  <select
-                    value={formData.purpose}
-                    onChange={(e) => handleChange('purpose', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="service">Service Introduction</option>
-                    <option value="product">Product Sales</option>
-                    <option value="brand">Brand/Company</option>
-                    <option value="lead">Lead Generation</option>
-                    <option value="event">Event Promotion</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Language
+                    </label>
+                    <select
+                      value={formData.language}
+                      onChange={(e) => handleChange('language', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="en">English</option>
+                      <option value="ja">日本語</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Purpose
+                    </label>
+                    <select
+                      value={formData.purpose}
+                      onChange={(e) => handleChange('purpose', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="product">Product</option>
+                      <option value="brand">Brand</option>
+                      <option value="service">Service</option>
+                      <option value="lead">Lead</option>
+                      <option value="event">Event</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -251,50 +382,6 @@ export default function ProjectEditPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Publishing Settings</h2>
-              
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Publish Landing Page</h3>
-                    <p className="text-sm text-gray-600">Make this landing page publicly accessible</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_published}
-                      onChange={(e) => handleChange('is_published', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                {formData.is_published && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-green-900 mb-1">Public URL</h4>
-                        <p className="text-sm text-green-700 font-mono break-all">
-                          {`${window.location.origin}/p/${project.id}`}
-                        </p>
-                      </div>
-                      <button
-                        onClick={copyPublicUrl}
-                        className="ml-3 flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                      >
-                        {copied ? (
-                          <><Check className="w-4 h-4 mr-1" /> Copied</>
-                        ) : (
-                          <><Copy className="w-4 h-4 mr-1" /> Copy URL</>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Preview Section */}
@@ -356,6 +443,13 @@ export default function ProjectEditPage() {
             </div>
           </div>
         </div>
+
+        <BillingModal
+          isOpen={showBillingModal}
+          onClose={() => setShowBillingModal(false)}
+          onConfirm={handlePublishWithLogo}
+          onUpgrade={handleUpgradeClick}
+        />
       </div>
     </DashboardLayout>
   );

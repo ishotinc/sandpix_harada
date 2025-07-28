@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.24.1';
 
+// Removed logger import to fix deployment issues
+
 export function createGeminiClient(apiKey: string) {
   if (!apiKey) {
     throw new Error('Gemini API key is required');
@@ -8,10 +10,10 @@ export function createGeminiClient(apiKey: string) {
   const genAI = new GoogleGenerativeAI(apiKey);
   
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash-exp',
+    model: 'gemini-2.5-flash-lite',
     generationConfig: {
-      maxOutputTokens: 32768, // Increased for comprehensive HTML generation
-      temperature: 0.7,
+      maxOutputTokens: 50000, // Increased for comprehensive HTML generation
+      temperature: 0.5,
       topP: 0.95,
       topK: 40,
     },
@@ -22,6 +24,11 @@ export function createGeminiClient(apiKey: string) {
       try {
         console.log('Generating landing page with Gemini AI...');
         console.log('Prompt length sent to Gemini:', prompt.length);
+        console.log('=== GEMINI PROMPT PREVIEW ===');
+        console.log('Prompt contains swipe scores:', prompt.includes('スワイプスコアランキング'));
+        console.log('Prompt contains critical instructions:', prompt.includes('最終必須実装事項'));
+        console.log('Last 500 chars of prompt:', prompt.substring(prompt.length - 500));
+        console.log('=== GEMINI PROMPT PREVIEW END ===');
         
         const result = await model.generateContent(prompt);
         const response = await result.response;

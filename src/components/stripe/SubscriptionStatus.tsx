@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getUserSubscription } from '@/lib/stripe/client';
-import { getProductByPriceId } from '@/stripe-config';
+import { getProductByPriceId } from '@/lib/stripe-config';
 import { Crown, Calendar, CreditCard } from 'lucide-react';
 
 interface SubscriptionData {
@@ -16,6 +17,7 @@ interface SubscriptionData {
 export function SubscriptionStatus() {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSubscription();
@@ -42,10 +44,13 @@ export function SubscriptionStatus() {
 
   if (!subscription || !subscription.price_id) {
     return (
-      <div className="flex items-center gap-2 text-gray-600">
+      <button 
+        onClick={() => navigate('/pricing')}
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+      >
         <Crown className="w-4 h-4" />
         <span>Free Plan</span>
-      </div>
+      </button>
     );
   }
 
@@ -53,7 +58,10 @@ export function SubscriptionStatus() {
   const isActive = subscription.subscription_status === 'active';
 
   return (
-    <div className="flex items-center gap-2">
+    <button 
+      onClick={() => navigate('/pricing')}
+      className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-1 transition-colors"
+    >
       <Crown className={`w-4 h-4 ${isActive ? 'text-yellow-500' : 'text-gray-400'}`} />
       <span className={`font-medium ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
         {product?.name || 'Unknown Plan'}
@@ -74,6 +82,6 @@ export function SubscriptionStatus() {
           </span>
         </div>
       )}
-    </div>
+    </button>
   );
 }

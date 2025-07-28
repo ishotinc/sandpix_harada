@@ -1,0 +1,36 @@
+name: Deploy Supabase Functions
+
+on:
+  push:
+    branches: [main, sandpix_harada]
+    paths: 
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy.yml'
+      - 'public/swipe-config.json'  # スワイプ設定変更時
+      - 'src/utils/scoring.ts'      # スコア計算ロジック変更時
+  
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy Supabase Functions
+        run: |
+          supabase functions deploy projects-generate --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deployment Success
+        run: |
+          echo "✅ Supabase Functions deployed successfully!"
+          echo "📊 Dashboard: https://supabase.com/dashboard/project/${{ secrets.SUPABASE_PROJECT_ID }}/functions"
