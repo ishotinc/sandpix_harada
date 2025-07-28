@@ -61,3 +61,23 @@ export function generateFinalPrompt(
     purpose
   );
 }
+
+// 新しい関数: スワイプデータから直接プロンプトを生成
+export function generateFinalPromptFromSwipeData(
+  projectData: ProjectData,
+  profileData: Profile,
+  swipeData: Array<{ imageId: number; liked: boolean }>,
+  planType: PlanType = 'free',
+  language: Language,
+  purpose: Purpose = 'product'
+): string {
+  const builder = new PromptBuilder(DEFAULT_PROMPT_TEMPLATE);
+  return builder.buildFromSwipeData(
+    projectData,
+    profileData,
+    swipeData,
+    planType,
+    language,
+    purpose
+  );
+}

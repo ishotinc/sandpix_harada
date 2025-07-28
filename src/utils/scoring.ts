@@ -37,6 +37,13 @@ function normalizeScores(rawScores: SwipeScores) {
   };
 }
 
+// DEPRECATED: この関数はエッジ関数に統一されました
+// 新しいシステムでは、生のスワイプデータをエッジ関数に送信し、
+// エッジ関数側で計算を行います。
+// 
+// クライアント側では表示用の簡易計算のみ行い、
+// 正式な計算はエッジ関数で実行されます。
+
 export function calculateSwipeScores(swipes: Array<{ image: SwipeImage; liked: boolean }>): SwipeScores {
   const scores: SwipeScores = {
     warm_score: 0,
@@ -83,6 +90,23 @@ export function calculateSwipeScores(swipes: Array<{ image: SwipeImage; liked: b
   };
 
   return normalizedScores;
+}
+
+// 新しい関数: エッジ関数用のスワイプデータ形式に変換
+export function prepareSwipeDataForEdgeFunction(swipes: Array<{ image: SwipeImage; liked: boolean }>): Array<{ imageId: number; liked: boolean }> {
+  return swipes.map(({ image, liked }) => ({
+    imageId: image.id,
+    liked
+  }));
+}
+
+// 新しい関数: クライアント側でのプレビュー用簡易計算
+// 注意: 正式な計算はエッジ関数で行われます。これは表示用の近似値です。
+export function calculateSwipeScoresPreview(swipes: Array<{ image: SwipeImage; liked: boolean }>): SwipeScores {
+  console.warn('⚠️ この計算はプレビュー用です。正式な計算はエッジ関数で行われます。');
+  
+  // エッジ関数と同じロジックを使用（簡易版）
+  return calculateSwipeScores(swipes);
 }
 
 export function getStyleDescription(scores: SwipeScores): string {

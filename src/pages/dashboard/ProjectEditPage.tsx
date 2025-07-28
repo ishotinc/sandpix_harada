@@ -107,8 +107,29 @@ export default function ProjectEditPage() {
   };
 
   const handleRegenerate = async () => {
-    // Navigate to generate page with project ID for regeneration
-    navigate(`/projects/generate/${id}`);
+    // Save current changes before regenerating to ensure language/purpose are updated
+    setSaving(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${apiEndpoints.projects}/${id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        showToast('success', 'Changes saved. Redirecting to regenerate...');
+        // Navigate to generate page with project ID for regeneration
+        navigate(`/projects/generate/${id}`);
+      } else {
+        const data = await response.json();
+        showToast('error', data.error || 'Failed to save changes before regenerating');
+      }
+    } catch (error) {
+      showToast('error', 'Failed to save changes before regenerating');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -220,96 +241,70 @@ export default function ProjectEditPage() {
             </div>
           
             <div className="flex items-center space-x-4">
-            {project.is_published && (
-              <a
-                href={`/p/${project.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>View Live</span>
-              </a>
-            )}
+              {/* Publish Toggle */}
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-700">Publish</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_published}
+                    onChange={(e) => handleChange('is_published', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* Copy and External Link Icons (only when published) */}
+              {(formData.is_published || project?.is_published) && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      copyPublicUrl();
+                    }}
+                    className="text-gray-600 hover:text-black transition-colors"
+                    title="Copy URL to clipboard"
+                  >
+                    {copied ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      <Copy className="w-5 h-5" />
+                    )}
+                  </button>
+                  <a
+                    href={`/p/${project.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-black transition-colors"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                  </a>
+                </div>
+              )}
             
-            <Button
-              variant="outline"
-              onClick={handleRegenerate}
-              loading={regenerating}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Regenerate
-            </Button>
+              <Button
+                variant="outline"
+                onClick={handleRegenerate}
+                loading={saving}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Regenerate
+              </Button>
 
-            <Button
-              variant="gradient"
-              onClick={handleSave}
-              loading={saving}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
+              <Button
+                variant="gradient"
+                onClick={handleSave}
+                loading={saving}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Publishing Settings at the top */}
-        {(formData.is_published || project?.is_published) && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h4 className="font-medium text-green-900 mb-1">Public URL</h4>
-                <p className="text-sm text-green-700 font-mono break-all">
-                  {`${window.location.origin}/p/${project.id}`}
-                </p>
-              </div>
-              <div className="ml-3 flex items-center space-x-3">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log('Copy button clicked');
-                    copyPublicUrl();
-                  }}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                  title="Copy URL to clipboard"
-                >
-                  {copied ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    <Copy className="w-5 h-5" />
-                  )}
-                </button>
-                <a
-                  href={`/p/${project.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                  title="Open in new tab"
-                >
-                  <ExternalLink className="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="mb-6 bg-white rounded-2xl shadow-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900">Publish Landing Page</h3>
-              <p className="text-sm text-gray-600">Make this landing page publicly accessible</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.is_published}
-                onChange={(e) => handleChange('is_published', e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Form Section */}

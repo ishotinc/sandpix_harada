@@ -6,6 +6,8 @@ on:
     paths: 
       - 'supabase/functions/**'
       - '.github/workflows/deploy.yml'
+      - 'public/swipe-config.json'  # スワイプ設定変更時
+      - 'src/utils/scoring.ts'      # スコア計算ロジック変更時
   
   workflow_dispatch: # Manual trigger
 

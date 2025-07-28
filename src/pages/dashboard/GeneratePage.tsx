@@ -6,6 +6,7 @@ import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
+import { GenerationProgress } from '../../components/ui/GenerationProgress';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
@@ -172,20 +173,23 @@ export default function GeneratePage() {
   const handleInfoSubmit = async (data: ProjectGenerationData & { language: 'ja' | 'en'; purpose: PurposeType }) => {
     // Extract language and purpose from data
     const { language: formLanguage, purpose: formPurpose, ...projectInfo } = data;
-    setLanguage(formLanguage || 'en');
-    setPurpose(formPurpose || 'product');
+    const finalLanguage = formLanguage || 'en';
+    const finalPurpose = formPurpose || 'product';
+    
+    setLanguage(finalLanguage);
+    setPurpose(finalPurpose);
     
     const projectDataWithPurpose: ProjectGenerationData = { 
       ...projectInfo, 
-      purpose: formPurpose || purpose,
-      language: formLanguage || 'en'
+      purpose: finalPurpose,
+      language: finalLanguage
     };
     setProjectData(projectDataWithPurpose);
     setCurrentStep('preview');
-    await generateLandingPage(projectDataWithPurpose);
+    await generateLandingPage(projectDataWithPurpose, finalLanguage, finalPurpose);
   };
 
-  const generateLandingPage = async (data: ProjectGenerationData) => {
+  const generateLandingPage = async (data: ProjectGenerationData, overrideLanguage?: 'ja' | 'en', overridePurpose?: PurposeType) => {
     setLoading(true);
     try {
       const swipeScores = calculateSwipeScores(swipeResults);
@@ -202,11 +206,14 @@ export default function GeneratePage() {
         return;
       }
       
+      const finalLanguage = overrideLanguage || language;
+      const finalPurpose = overridePurpose || purpose;
+      
       console.log('Sending request to generate landing page:', {
         projectData: data,
         swipeScores,
-        language,
-        purpose
+        language: finalLanguage,
+        purpose: finalPurpose
       });
       
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/projects-generate`, {
@@ -218,8 +225,8 @@ export default function GeneratePage() {
         body: JSON.stringify({
           projectData: data,
           swipeScores,
-          language,
-          purpose,
+          language: finalLanguage,
+          purpose: finalPurpose,
         }),
       });
 
@@ -244,7 +251,7 @@ export default function GeneratePage() {
         setUsageRefreshTrigger(prev => prev + 1);
         
         // Auto-save the generated landing page
-        await autoSaveProject(data, result.html);
+        await autoSaveProject(data, result.html, finalLanguage);
       } else if (response.status === 429 || response.status === 403) {
         // Handle rate limit error (429) or forbidden due to limit (403)
         showToast('error', result.message || 'Daily generation limit reached');
@@ -262,12 +269,12 @@ export default function GeneratePage() {
     }
   };
 
-  const autoSaveProject = async (data: ProjectGenerationData, html: string) => {
+  const autoSaveProject = async (data: ProjectGenerationData, html: string, saveLanguage?: 'ja' | 'en') => {
     try {
       const headers = await getAuthHeaders();
       const projectPayload = {
         ...data,
-        language,
+        language: saveLanguage || language,
         generated_html: html,
         is_published: false, // Auto-saved as draft
       };
@@ -427,7 +434,7 @@ export default function GeneratePage() {
           />
         )}
 
-        {currentStep === 'preview' && (
+        {currentStep === 'preview' && !loading && (
           <GeneratePreview
             html={generatedHtml}
             loading={loading}
@@ -437,6 +444,17 @@ export default function GeneratePage() {
             isPublished={isPublished}
             onPublish={handlePublishProject}
             showGenerationLimitBanner={hitGenerationLimit}
+          />
+        )}
+
+        {currentStep === 'preview' && loading && (
+          <GenerationProgress
+            isGenerating={loading}
+            onComplete={() => {
+              // Progress complete callback - this will be called after 60 seconds
+              // The actual generation might finish earlier via the API response
+            }}
+            totalDuration={60}
           />
         )}
       </div>

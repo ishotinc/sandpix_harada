@@ -1,3 +1,6 @@
+// Import swipe configuration and scoring utilities
+import { SwipeScores, calculateSwipeScores, normalizeScores } from '../_shared/swipe-config.ts';
+
 // Import types inline to avoid Deno import issues
 type ProjectData = {
   service_name: string;
@@ -21,21 +24,6 @@ type Profile = {
   achievements?: string;
 };
 
-type SwipeScores = {
-  warm_score: number;
-  cool_score: number;
-  mono_score: number;
-  vivid_score: number;
-  friendly_score: number;
-  professional_score: number;
-  creative_score: number;
-  minimal_score: number;
-  energetic_score: number;
-  trustworthy_score: number;
-  luxurious_score: number;
-  approachable_score: number;
-};
-
 type PlanType = 'free' | 'plus';
 type Language = 'ja' | 'en';
 type Purpose = 'product' | 'lead' | 'service' | 'brand' | 'event';
@@ -46,6 +34,23 @@ export class PromptBuilder {
 
   constructor(template: string) {
     this.template = template;
+  }
+
+  // 新しいメソッド: スワイプデータから直接スコアを計算してプロンプトを構築
+  buildFromSwipeData(
+    projectData: ProjectData,
+    profileData: Profile,
+    swipeData: Array<{ imageId: number; liked: boolean }>,
+    planType: PlanType = 'free',
+    language: Language,
+    purpose: Purpose = 'product'
+  ): string {
+    // スワイプデータからスコアを計算
+    const calculatedScores = calculateSwipeScores(swipeData);
+    console.log('Calculated swipe scores from raw data:', calculatedScores);
+    
+    // 既存のbuildメソッドを呼び出し
+    return this.build(projectData, profileData, calculatedScores, planType, language, purpose);
   }
 
   build(

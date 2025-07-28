@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { createGeminiClient } from './gemini-client.ts'
-import { generateFinalPrompt } from './prompt-generator.ts'
+import { generateFinalPrompt, generateFinalPromptFromSwipeData } from './prompt-generator.ts'
 import { PLAN_LIMITS } from '../_shared/constants.ts'
 // Removed logger import to fix deployment issues
 
@@ -123,7 +123,7 @@ serve(async (req) => {
       }
     }
 
-    const { projectData, swipeScores, language: requestLanguage, purpose: requestPurpose } = await req.json()
+    const { projectData, swipeScores, swipeData, language: requestLanguage, purpose: requestPurpose } = await req.json()
 
     // Extract language and purpose from request body (not from projectData)
     const language = requestLanguage
@@ -168,13 +168,33 @@ serve(async (req) => {
     // Generate comprehensive prompt with language and purpose
     console.log('Generating prompt with data:', {
       projectDataKeys: Object.keys(projectData),
-      swipeScoresKeys: Object.keys(swipeScores),
+      swipeScoresKeys: swipeScores ? Object.keys(swipeScores) : null,
+      swipeDataLength: swipeData ? swipeData.length : null,
       language,
       purpose,
       planType
     })
     
-    const prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType, language, purpose)
+    // Generate prompt using either pre-calculated scores or raw swipe data
+    let prompt: string;
+    if (swipeData && swipeData.length > 0) {
+      // Use raw swipe data to calculate scores dynamically
+      console.log('Using raw swipe data to calculate scores');
+      prompt = generateFinalPromptFromSwipeData(projectData, fullProfile || {}, swipeData, planType, language, purpose);
+    } else if (swipeScores) {
+      // Use pre-calculated scores
+      console.log('Using pre-calculated swipe scores');
+      prompt = generateFinalPrompt(projectData, fullProfile || {}, swipeScores, planType, language, purpose);
+    } else {
+      // Fallback: generate with empty scores
+      console.log('No swipe data provided, using empty scores');
+      const emptyScores = {
+        warm_score: 50, cool_score: 50, mono_score: 50, vivid_score: 50,
+        friendly_score: 50, professional_score: 50, creative_score: 50, minimal_score: 50,
+        energetic_score: 50, trustworthy_score: 50, luxurious_score: 50, approachable_score: 50
+      };
+      prompt = generateFinalPrompt(projectData, fullProfile || {}, emptyScores, planType, language, purpose);
+    }
     
     console.log('Generated prompt length:', prompt.length);
     console.log('Prompt preview (first 500 chars):', prompt.substring(0, 500));
