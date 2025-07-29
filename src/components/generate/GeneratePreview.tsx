@@ -18,9 +18,10 @@ interface GeneratePreviewProps {
   isPublished?: boolean;
   onPublish?: () => void;
   showGenerationLimitBanner?: boolean;
+  saving?: boolean;
 }
 
-export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish, showGenerationLimitBanner = false }: GeneratePreviewProps) {
+export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish, showGenerationLimitBanner = false, saving = false }: GeneratePreviewProps) {
   const [copySuccess, setCopySuccess] = useState('');
   const [showBanner, setShowBanner] = useState(showGenerationLimitBanner);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -143,11 +144,12 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           <Button
             variant="gradient"
             onClick={handleSaveClick}
-            disabled={loading || !html}
+            disabled={loading || !html || saving}
+            loading={saving}
             className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
           >
             <Save className="w-4 h-4 mr-2" />
-            Save Project
+            {saving ? 'Saving...' : 'Save Project'}
           </Button>
 
         </div>

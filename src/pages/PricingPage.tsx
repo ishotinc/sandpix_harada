@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { createCheckoutSession } from '@/lib/stripe/client';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -71,12 +72,7 @@ export default function PricingPage() {
       <header className="border-b border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">SandPix</span>
-            </Link>
+            <Logo to="/" variant="default" />
           </div>
         </div>
       </header>

@@ -305,7 +305,7 @@ export default function ProjectEditPage() {
                     className="flex-1 flex items-center justify-center"
                   >
                     <Save className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span>Save</span>
+                    <span>{saving ? 'Saving...' : 'Save'}</span>
                   </Button>
                 </div>
               </div>

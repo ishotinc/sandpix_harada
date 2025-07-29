@@ -7,6 +7,7 @@ import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
 import { GenerationProgress } from '../../components/ui/GenerationProgress';
+import { PageTransitionLoading } from '../../components/ui/PageTransitionLoading';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
@@ -31,6 +32,8 @@ export default function GeneratePage() {
   const [purpose, setPurpose] = useState<PurposeType>('product');
   const [usageRefreshTrigger, setUsageRefreshTrigger] = useState(0);
   const [hitGenerationLimit, setHitGenerationLimit] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { id: regenerateId } = useParams<{ id: string }>();
@@ -316,6 +319,7 @@ export default function GeneratePage() {
   const handleSaveProject = async () => {
     if (!projectData || !generatedHtml) return;
 
+    setSaving(true);
     try {
       const headers = await getAuthHeaders();
       const projectPayload = {
@@ -335,7 +339,11 @@ export default function GeneratePage() {
 
         if (response.ok) {
           showToast('success', 'Project saved successfully!');
-          navigate(`/projects/${projectId}`);
+          setIsTransitioning(true);
+          // Small delay to show the transition loading
+          setTimeout(() => {
+            navigate(`/projects/${projectId}`);
+          }, 500);
         } else {
           showToast('error', 'Failed to save project');
         }
@@ -351,7 +359,11 @@ export default function GeneratePage() {
         
         if (response.ok) {
           showToast('success', 'Project saved successfully!');
-          navigate(`/projects/${result.project.id}`);
+          setIsTransitioning(true);
+          // Small delay to show the transition loading
+          setTimeout(() => {
+            navigate(`/projects/${result.project.id}`);
+          }, 500);
         } else if (result.requiresUpgrade) {
           showToast('error', 'Project limit reached. Please upgrade to save more projects.');
         } else {
@@ -360,6 +372,8 @@ export default function GeneratePage() {
       }
     } catch (error) {
       showToast('error', 'Failed to save project');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -444,6 +458,7 @@ export default function GeneratePage() {
             isPublished={isPublished}
             onPublish={handlePublishProject}
             showGenerationLimitBanner={hitGenerationLimit}
+            saving={saving}
           />
         )}
 
@@ -455,6 +470,14 @@ export default function GeneratePage() {
               // The actual generation might finish earlier via the API response
             }}
             totalDuration={60}
+          />
+        )}
+        
+        {/* Page Transition Loading */}
+        {isTransitioning && (
+          <PageTransitionLoading 
+            title="Redirecting to Editor"
+            subtitle="Setting up your project editing interface..."
           />
         )}
       </div>
