@@ -243,9 +243,39 @@ export default function ProjectEditPage() {
             
             {/* Mobile-first layout for controls */}
             <div className="space-y-4">
-              {/* Publish Toggle */}
+              {/* Publish Toggle with Icons */}
               <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Publish Status</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-700">Publish Status</span>
+                  {/* Copy and External Link Icons (only when published) */}
+                  {(formData.is_published || project?.is_published) && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          copyPublicUrl();
+                        }}
+                        className="flex items-center justify-center p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
+                        title="Copy URL to clipboard"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                      <a
+                        href={`/p/${project.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
+                        title="Open in new tab"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  )}
+                </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -257,58 +287,27 @@ export default function ProjectEditPage() {
                 </label>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                {/* Copy and External Link Icons (only when published) */}
-                {(formData.is_published || project?.is_published) && (
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        copyPublicUrl();
-                      }}
-                      className="flex items-center justify-center p-2 sm:p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Copy URL to clipboard"
-                    >
-                      {copied ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <Copy className="w-5 h-5" />
-                      )}
-                    </button>
-                    <a
-                      href={`/p/${project.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center p-2 sm:p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Open in new tab"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                  </div>
-                )}
-                
-                <div className="flex-1 flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={handleRegenerate}
-                    loading={saving}
-                    className="flex-1 flex items-center justify-center"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span>Regenerate</span>
-                  </Button>
+              {/* Action buttons - 2 columns on mobile */}
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleRegenerate}
+                  loading={saving}
+                  className="flex items-center justify-center"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>Regenerate</span>
+                </Button>
 
-                  <Button
-                    variant="gradient"
-                    onClick={handleSave}
-                    loading={saving}
-                    className="flex-1 flex items-center justify-center"
-                  >
-                    <Save className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span>{saving ? 'Saving...' : 'Save'}</span>
-                  </Button>
-                </div>
+                <Button
+                  variant="gradient"
+                  onClick={handleSave}
+                  loading={saving}
+                  className="flex items-center justify-center"
+                >
+                  <Save className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>{saving ? 'Saving...' : 'Save'}</span>
+                </Button>
               </div>
             </div>
           </div>

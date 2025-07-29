@@ -3,7 +3,7 @@
   "images": [
     {
       "id": 1,
-      "title": "Friendly & Approachable",
+      "title": "Energetic & Friendly",
       "description": "Warm, welcoming design with soft elements and friendly messaging",
       "visual_hints": "Staff smiling photos, hand-drawn icons, soft rounded corners, warm expressions",
       "path": "/images/swipe-1.jpg",
@@ -24,7 +24,7 @@
     },
     {
       "id": 2,
-      "title": "Professional & Trustworthy",
+      "title": "Reassuring & Traditional",
       "description": "Clean, corporate design with emphasis on credibility and expertise",
       "visual_hints": "Suited professionals, data graphs, angular design, logical structure",
       "path": "/images/swipe-2.jpg",
@@ -45,7 +45,7 @@
     },
     {
       "id": 3,
-      "title": "Creative & Innovative",
+      "title": "Colorful & Innovative",
       "description": "Bold, artistic design with unique layouts and creative elements",
       "visual_hints": "Abstract art, unconventional layouts, creative typography, artistic elements",
       "path": "/images/swipe-3.jpg",
@@ -66,7 +66,7 @@
     },
     {
       "id": 4,
-      "title": "Minimal & Clean",
+      "title": "Professional & Trustworthy",
       "description": "Simplified design with lots of white space and clean lines",
       "visual_hints": "Minimal elements, clean typography, white space, simple layouts",
       "path": "/images/swipe-4.jpg",
@@ -87,7 +87,7 @@
     },
     {
       "id": 5,
-      "title": "Energetic & Dynamic",
+      "title": "Pop & Bright",
       "description": "High-energy design with vibrant colors and dynamic elements",
       "visual_hints": "Bright colors, action shots, dynamic layouts, energetic messaging",
       "path": "/images/swipe-5.jpg",
@@ -108,7 +108,7 @@
     },
     {
       "id": 6,
-      "title": "Luxurious & Premium",
+      "title": "Casual & Trustworthy",
       "description": "High-end, sophisticated design with premium materials and finishes",
       "visual_hints": "Gold accents, premium materials, sophisticated layouts, luxury branding",
       "path": "/images/swipe-6.jpg",
@@ -129,7 +129,7 @@
     },
     {
       "id": 7,
-      "title": "Warm & Inviting",
+      "title": "Minimal & Monochrome",
       "description": "Cozy, comfortable design with warm colors and inviting elements",
       "visual_hints": "Warm lighting, comfortable spaces, earth tones, inviting atmosphere",
       "path": "/images/swipe-7.jpg",
@@ -150,7 +150,7 @@
     },
     {
       "id": 8,
-      "title": "Cool & Modern",
+      "title": "Vivid & Game-like",
       "description": "Contemporary design with cool colors and modern aesthetics",
       "visual_hints": "Cool blues, modern architecture, sleek designs, contemporary feel",
       "path": "/images/swipe-8.jpg",
@@ -171,7 +171,7 @@
     },
     {
       "id": 9,
-      "title": "Monochrome & Elegant",
+      "title": "Simple",
       "description": "Black and white design with elegant typography and sophisticated layout",
       "visual_hints": "Black and white photography, elegant typography, sophisticated layouts",
       "path": "/images/swipe-9.jpg",
@@ -192,7 +192,7 @@
     },
     {
       "id": 10,
-      "title": "Vibrant & Colorful",
+      "title": "Asymmetric & Monochrome",
       "description": "Bold, colorful design with vibrant hues and playful elements",
       "visual_hints": "Bright colors, playful elements, vibrant photography, colorful graphics",
       "path": "/images/swipe-10.jpg",
@@ -213,7 +213,7 @@
     },
     {
       "id": 11,
-      "title": "Tech & Innovative",
+      "title": "Elegant & Sophisticated",
       "description": "High-tech design with digital elements and innovative features",
       "visual_hints": "Digital interfaces, tech elements, innovative layouts, futuristic design",
       "path": "/images/swipe-11.jpg",
@@ -234,7 +234,7 @@
     },
     {
       "id": 12,
-      "title": "Natural & Organic",
+      "title": "Urgent & Sales-focused"
       "description": "Nature-inspired design with organic shapes and natural elements",
       "visual_hints": "Natural photography, organic shapes, earth tones, nature elements",
       "path": "/images/swipe-12.jpg",

@@ -53,23 +53,13 @@ export function UpgradeBanner({
 
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div className="flex items-start gap-3 flex-1">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="space-y-1 flex-1">
             <h3 className="font-semibold text-gray-900">{title}</h3>
             <p className="text-sm text-gray-600">{description}</p>
           </div>
-        </div>
-        <div className="flex items-center justify-between sm:justify-end gap-3 sm:ml-4">
-          <Button 
-            variant="gradient" 
-            onClick={handleUpgradeClick}
-            size="sm"
-            className="flex-1 sm:flex-initial"
-          >
-            Upgrade to Plus
-          </Button>
           {onDismiss && (
             <button
               onClick={onDismiss}
@@ -79,6 +69,16 @@ export function UpgradeBanner({
               <X className="w-5 h-5" />
             </button>
           )}
+        </div>
+        <div className="flex justify-center sm:justify-end">
+          <Button 
+            variant="gradient" 
+            onClick={handleUpgradeClick}
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            Upgrade to Plus
+          </Button>
         </div>
       </div>
     </div>
