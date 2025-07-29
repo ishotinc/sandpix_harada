@@ -9,7 +9,7 @@ import { useToast } from '../../components/ui/ToastProvider';
 import { Project } from '../../types/project';
 import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
-import { BillingModal } from '../../components/ui/BillingModal';
+import { UpgradeModal } from '../../components/ui/UpgradeModal';
 import { UniversalLoading } from '../../components/ui/UniversalLoading';
 
 export default function ProjectEditPage() {
@@ -23,7 +23,7 @@ export default function ProjectEditPage() {
   const [regenerating, setRegenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
   const [copied, setCopied] = useState(false);
-  const [showBillingModal, setShowBillingModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   const [formData, setFormData] = useState({
     service_name: '',
@@ -135,8 +135,8 @@ export default function ProjectEditPage() {
 
   const handleChange = (field: string, value: string | boolean) => {
     if (field === 'is_published' && value === true) {
-      // Show billing modal when trying to publish
-      setShowBillingModal(true);
+      // Show upgrade modal when trying to publish
+      setShowUpgradeModal(true);
       return;
     }
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -144,12 +144,12 @@ export default function ProjectEditPage() {
 
   const handlePublishWithLogo = async () => {
     setFormData(prev => ({ ...prev, is_published: true }));
-    setShowBillingModal(false);
+    setShowUpgradeModal(false);
     await handleSave();
   };
 
   const handleUpgradeClick = () => {
-    setShowBillingModal(false);
+    setShowUpgradeModal(false);
     navigate('/pricing');
   };
 
@@ -455,11 +455,12 @@ export default function ProjectEditPage() {
           </div>
         </div>
 
-        <BillingModal
-          isOpen={showBillingModal}
-          onClose={() => setShowBillingModal(false)}
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
           onConfirm={handlePublishWithLogo}
           onUpgrade={handleUpgradeClick}
+          type="billing"
         />
       </div>
     </DashboardLayout>

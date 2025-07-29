@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { Save, RefreshCw, Eye, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
 import { UpgradeBanner } from '@/components/dashboard/UpgradeBanner';
 import { useProfile } from '@/hooks/useProfile';
-import { ProgressiveLoading } from '@/components/ui/ProgressiveLoading';
-import { BillingModal } from '@/components/ui/BillingModal';
+import { UniversalLoading } from '@/components/ui/UniversalLoading';
+import { UpgradeModal } from '@/components/ui/UpgradeModal';
 import { useNavigate } from 'react-router-dom';
 
 interface GeneratePreviewProps {
@@ -157,7 +157,11 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         {loading ? (
-          <ProgressiveLoading />
+          <UniversalLoading 
+            title="Preparing Preview"
+            subtitle="Setting up your landing page"
+            showTips={false}
+          />
         ) : html ? (
           <div className="h-[800px]">
             <iframe
@@ -192,11 +196,12 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
         </div>
       )}
 
-      <BillingModal
+      <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={handleModalClose}
         onConfirm={handleModalClose}
         onUpgrade={handleUpgradeClick}
+        type="billing"
       />
     </div>
   );
