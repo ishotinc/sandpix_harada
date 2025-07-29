@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { Save, RefreshCw, Eye, Globe, Copy, ExternalLink, FileText } from 'lucide-react';
 import { UpgradeBanner } from '@/components/dashboard/UpgradeBanner';
 import { useProfile } from '@/hooks/useProfile';
-import { ProgressiveLoading } from '@/components/ui/ProgressiveLoading';
-import { BillingModal } from '@/components/ui/BillingModal';
+import { UniversalLoading } from '@/components/ui/UniversalLoading';
+import { UpgradeModal } from '@/components/ui/UpgradeModal';
 import { useNavigate } from 'react-router-dom';
 
 interface GeneratePreviewProps {
@@ -18,9 +18,10 @@ interface GeneratePreviewProps {
   isPublished?: boolean;
   onPublish?: () => void;
   showGenerationLimitBanner?: boolean;
+  saving?: boolean;
 }
 
-export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish, showGenerationLimitBanner = false }: GeneratePreviewProps) {
+export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId, isPublished = false, onPublish, showGenerationLimitBanner = false, saving = false }: GeneratePreviewProps) {
   const [copySuccess, setCopySuccess] = useState('');
   const [showBanner, setShowBanner] = useState(showGenerationLimitBanner);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -143,11 +144,12 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
           <Button
             variant="gradient"
             onClick={handleSaveClick}
-            disabled={loading || !html}
+            disabled={loading || !html || saving}
+            loading={saving}
             className="w-full sm:w-auto sm:flex-1 lg:flex-initial"
           >
             <Save className="w-4 h-4 mr-2" />
-            Save Project
+            {saving ? 'Saving...' : 'Save Project'}
           </Button>
 
         </div>
@@ -155,7 +157,11 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         {loading ? (
-          <ProgressiveLoading />
+          <UniversalLoading 
+            title="Preparing Preview"
+            subtitle="Setting up your landing page"
+            showTips={false}
+          />
         ) : html ? (
           <div className="h-[800px]">
             <iframe
@@ -190,11 +196,12 @@ export function GeneratePreview({ html, loading, onSave, onRegenerate, projectId
         </div>
       )}
 
-      <BillingModal
+      <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={handleModalClose}
         onConfirm={handleModalClose}
         onUpgrade={handleUpgradeClick}
+        type="billing"
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/ToastProvider';
+import { UniversalLoading } from '@/components/ui/UniversalLoading';
 import { SidebarNavigation } from './SidebarNavigation';
 
 interface DashboardLayoutProps {
@@ -44,9 +45,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

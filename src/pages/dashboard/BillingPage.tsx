@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { UniversalLoading } from '@/components/ui/UniversalLoading';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { PLAN_LIMITS } from '@/lib/constants/plans';
 import { createCheckoutSession, getUserSubscription } from '@/lib/stripe/client';
@@ -14,6 +16,11 @@ interface UserData {
 }
 
 export default function BillingPage() {
+  usePageTitle({
+    title: 'Billing',
+    description: 'Manage your subscription, view billing history, and update payment methods.'
+  });
+
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);
@@ -99,11 +106,9 @@ export default function BillingPage() {
 
   if (!userData) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { supabase } from '../../lib/supabase/client';
 import { useToast } from '../../components/ui/ToastProvider';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +11,11 @@ import { Mail, Lock, User, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function RegisterPage() {
+  usePageTitle({
+    title: 'Sign Up',
+    description: 'Create your free SandPix account and start generating beautiful landing pages with AI in minutes.'
+  });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

@@ -24,6 +24,12 @@ const GENERATION_STEPS: Omit<GenerationStep, 'completed'>[] = [
   { id: 'coding', message: 'Generating HTML & CSS code...', duration: 10 }
 ];
 
+const GENERATION_TIPS = [
+  'Enter detailed service information in project editing to create a landing page that better matches your vision. Try adding pricing, achievements, and reviews.',
+  'Information set in your profile settings page will be integrated into the generated pages.',
+  'The more you generate, the better our system learns your preferred landing page design for each project.'
+];
+
 export function GenerationProgress({ 
   isGenerating, 
   onComplete,
@@ -35,6 +41,7 @@ export function GenerationProgress({
     GENERATION_STEPS.map(step => ({ ...step, completed: false }))
   );
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
 
   useEffect(() => {
     if (!isGenerating) {
@@ -42,6 +49,7 @@ export function GenerationProgress({
       setCurrentStep(0);
       setProgress(0);
       setElapsedTime(0);
+      setCurrentTipIndex(0);
       setSteps(GENERATION_STEPS.map(step => ({ ...step, completed: false })));
       return;
     }
@@ -95,6 +103,17 @@ export function GenerationProgress({
 
     return () => clearInterval(interval);
   }, [isGenerating, totalDuration, onComplete]);
+
+  // Tips rotation every 10 seconds
+  useEffect(() => {
+    if (!isGenerating) return;
+    
+    const tipInterval = setInterval(() => {
+      setCurrentTipIndex(prev => (prev + 1) % GENERATION_TIPS.length);
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(tipInterval);
+  }, [isGenerating]);
 
   if (!isGenerating) {
     return null;
@@ -196,8 +215,25 @@ export function GenerationProgress({
         ))}
       </div>
 
+      {/* Tips Section */}
+      <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start space-x-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm font-bold">💡</span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-blue-800 mb-1">
+              Tip #{currentTipIndex + 1}
+            </p>
+            <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
+              {GENERATION_TIPS[currentTipIndex]}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Warning Message */}
-      <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-start space-x-2">
           <div className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 mt-0.5 flex-shrink-0">
             ⏳

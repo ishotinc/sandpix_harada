@@ -12,9 +12,9 @@ import {
   Crown,
   CreditCard,
   Settings,
-  Home,
-  Sparkles
+  Home
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/ToastProvider';
 import { SubscriptionStatus } from '@/components/stripe/SubscriptionStatus';
@@ -206,12 +206,7 @@ export function SidebarNavigation({ children }: SidebarNavigationProps) {
             </button>
 
             {/* Sandpix logo */}
-            <Link to="/projects" className="flex items-center space-x-2">
-              <div className="w-8 h-8 text-gradient rounded-lg flex items-center justify-center bg-gray-100">
-                <Sparkles className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="text-xl font-bold text-gradient">Sandpix</span>
-            </Link>
+            <Logo to="/projects" variant="default" />
           </div>
         </div>
 

@@ -8,22 +8,23 @@ interface SwipeCardProps {
   image: SwipeImage;
   onSwipe: (liked: boolean) => void;
   isAnimating: boolean;
+  isPreloaded?: boolean;
 }
 
-export function SwipeCard({ image, onSwipe, isAnimating }: SwipeCardProps) {
+export function SwipeCard({ image, onSwipe, isAnimating, isPreloaded = false }: SwipeCardProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   
-  // Transform values based on drag position
-  const rotate = useTransform(x, [-200, 0, 200], [-30, 0, 30]);
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 0.8, 1, 0.8, 0.5]);
+  // Transform values based on drag position - smoother transitions
+  const rotate = useTransform(x, [-150, 0, 150], [-20, 0, 20]); // Reduced rotation for smoother feel
+  const opacity = useTransform(x, [-150, -50, 0, 50, 150], [0.7, 0.9, 1, 0.9, 0.7]); // Smoother opacity curve
   
-  // Indicator opacities
-  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
-  const passOpacity = useTransform(x, [-100, 0], [1, 0]);
+  // Indicator opacities - faster response
+  const likeOpacity = useTransform(x, [0, 60], [0, 1]); // Show LIKE indicator sooner
+  const passOpacity = useTransform(x, [-60, 0], [1, 0]); // Show PASS indicator sooner
   
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const threshold = 100;
+    const threshold = 80; // Reduced threshold for faster swipe detection
     
     if (Math.abs(info.offset.x) > threshold) {
       onSwipe(info.offset.x > 0);
@@ -46,36 +47,37 @@ export function SwipeCard({ image, onSwipe, isAnimating }: SwipeCardProps) {
         }}
         drag={!isAnimating}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={1}
+        dragElastic={0.1} // Reduced elastic for less bounce
         dragMomentum={false}
         onDragEnd={handleDragEnd}
-        whileHover={{ scale: isAnimating ? 1 : 1.02 }}
-        whileDrag={{ scale: 1.05 }}
+        whileHover={{ scale: isAnimating ? 1 : 1.01 }} // Reduced hover scale
+        whileDrag={{ scale: 1.02 }} // Reduced drag scale
         transition={{
-          scale: { duration: 0.2, ease: 'easeOut' },
+          type: 'tween',
+          duration: 0.1,
+          ease: 'easeOut'
         }}
       >
         {/* Image */}
-        <div className="aspect-[4/3] overflow-hidden">
+        <div className="aspect-[4/3] overflow-hidden relative">
           <img
             src={image.path}
             alt={image.title}
             className="w-full h-full object-cover"
             draggable={false}
+            loading="eager"
           />
+          {/* Preload indicator (optional visual feedback) */}
+          {!isPreloaded && (
+            <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+          )}
         </div>
 
         {/* Content */}
-        <div className="p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
+        <div className="p-3">
+          <h3 className="text-base font-bold text-gray-900 text-center">
             {image.title}
           </h3>
-          <p className="text-gray-600 text-sm mb-3">
-            {image.description}
-          </p>
-          <p className="text-gray-500 text-xs">
-            {image.visual_hints}
-          </p>
         </div>
 
         {/* Swipe Indicators */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { UniversalLoading } from '@/components/ui/UniversalLoading';
 
 export default function PublicPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,9 +48,9 @@ export default function PublicPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

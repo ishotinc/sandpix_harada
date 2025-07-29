@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { Button } from '../../components/ui/Button';
@@ -9,10 +10,16 @@ import { useToast } from '../../components/ui/ToastProvider';
 import { Project } from '../../types/project';
 import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
-import { BillingModal } from '../../components/ui/BillingModal';
+import { UpgradeModal } from '../../components/ui/UpgradeModal';
+import { UniversalLoading } from '../../components/ui/UniversalLoading';
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
+  
+  usePageTitle({
+    title: 'Edit Project',
+    description: 'Edit your landing page project settings, preview changes, and publish when ready.'
+  });
   const navigate = useNavigate();
   const { showToast } = useToast();
   
@@ -22,7 +29,7 @@ export default function ProjectEditPage() {
   const [regenerating, setRegenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
   const [copied, setCopied] = useState(false);
-  const [showBillingModal, setShowBillingModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   const [formData, setFormData] = useState({
     service_name: '',
@@ -134,8 +141,8 @@ export default function ProjectEditPage() {
 
   const handleChange = (field: string, value: string | boolean) => {
     if (field === 'is_published' && value === true) {
-      // Show billing modal when trying to publish
-      setShowBillingModal(true);
+      // Show upgrade modal when trying to publish
+      setShowUpgradeModal(true);
       return;
     }
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -143,12 +150,12 @@ export default function ProjectEditPage() {
 
   const handlePublishWithLogo = async () => {
     setFormData(prev => ({ ...prev, is_published: true }));
-    setShowBillingModal(false);
+    setShowUpgradeModal(false);
     await handleSave();
   };
 
   const handleUpgradeClick = () => {
-    setShowBillingModal(false);
+    setShowUpgradeModal(false);
     navigate('/pricing');
   };
 
@@ -206,9 +213,9 @@ export default function ProjectEditPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 
@@ -242,9 +249,39 @@ export default function ProjectEditPage() {
             
             {/* Mobile-first layout for controls */}
             <div className="space-y-4">
-              {/* Publish Toggle */}
+              {/* Publish Toggle with Icons */}
               <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Publish Status</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-700">Publish Status</span>
+                  {/* Copy and External Link Icons (only when published) */}
+                  {(formData.is_published || project?.is_published) && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          copyPublicUrl();
+                        }}
+                        className="flex items-center justify-center p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
+                        title="Copy URL to clipboard"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                      <a
+                        href={`/p/${project.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
+                        title="Open in new tab"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  )}
+                </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -256,58 +293,27 @@ export default function ProjectEditPage() {
                 </label>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                {/* Copy and External Link Icons (only when published) */}
-                {(formData.is_published || project?.is_published) && (
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        copyPublicUrl();
-                      }}
-                      className="flex items-center justify-center p-2 sm:p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Copy URL to clipboard"
-                    >
-                      {copied ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <Copy className="w-5 h-5" />
-                      )}
-                    </button>
-                    <a
-                      href={`/p/${project.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center p-2 sm:p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Open in new tab"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                  </div>
-                )}
-                
-                <div className="flex-1 flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={handleRegenerate}
-                    loading={saving}
-                    className="flex-1 flex items-center justify-center"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span>Regenerate</span>
-                  </Button>
+              {/* Action buttons - 2 columns on mobile */}
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleRegenerate}
+                  loading={saving}
+                  className="flex items-center justify-center"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>Regenerate</span>
+                </Button>
 
-                  <Button
-                    variant="gradient"
-                    onClick={handleSave}
-                    loading={saving}
-                    className="flex-1 flex items-center justify-center"
-                  >
-                    <Save className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span>Save</span>
-                  </Button>
-                </div>
+                <Button
+                  variant="gradient"
+                  onClick={handleSave}
+                  loading={saving}
+                  className="flex items-center justify-center"
+                >
+                  <Save className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span>{saving ? 'Saving...' : 'Save'}</span>
+                </Button>
               </div>
             </div>
           </div>
@@ -455,11 +461,12 @@ export default function ProjectEditPage() {
           </div>
         </div>
 
-        <BillingModal
-          isOpen={showBillingModal}
-          onClose={() => setShowBillingModal(false)}
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
           onConfirm={handlePublishWithLogo}
           onUpgrade={handleUpgradeClick}
+          type="billing"
         />
       </div>
     </DashboardLayout>

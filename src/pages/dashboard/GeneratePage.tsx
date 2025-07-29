@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
 import { GenerationProgress } from '../../components/ui/GenerationProgress';
+import { UniversalLoading } from '../../components/ui/UniversalLoading';
+import { UpgradeModal } from '../../components/ui/UpgradeModal';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
@@ -18,6 +21,11 @@ import { ProjectGenerationData, SwipeResult } from '../../types/generation';
 import { ArrowLeft } from 'lucide-react';
 
 export default function GeneratePage() {
+  usePageTitle({
+    title: 'Generate',
+    description: 'Create your landing page by swiping through design styles and customizing your content.'
+  });
+
   const [swipeConfig, setSwipeConfig] = useState<{ images: SwipeImage[] } | null>(null);
   const [currentStep, setCurrentStep] = useState<'swipe' | 'info' | 'preview'>('swipe');
   const [swipeResults, setSwipeResults] = useState<SwipeResult[]>([]);
@@ -31,6 +39,9 @@ export default function GeneratePage() {
   const [purpose, setPurpose] = useState<PurposeType>('product');
   const [usageRefreshTrigger, setUsageRefreshTrigger] = useState(0);
   const [hitGenerationLimit, setHitGenerationLimit] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { id: regenerateId } = useParams<{ id: string }>();
@@ -48,6 +59,7 @@ export default function GeneratePage() {
       }
     }
   }, [regenerateId]);
+
 
   const loadProjectForRegeneration = async () => {
     try {
@@ -316,6 +328,7 @@ export default function GeneratePage() {
   const handleSaveProject = async () => {
     if (!projectData || !generatedHtml) return;
 
+    setSaving(true);
     try {
       const headers = await getAuthHeaders();
       const projectPayload = {
@@ -335,9 +348,18 @@ export default function GeneratePage() {
 
         if (response.ok) {
           showToast('success', 'Project saved successfully!');
-          navigate(`/projects/${projectId}`);
+          setIsTransitioning(true);
+          // Small delay to show the transition loading
+          setTimeout(() => {
+            navigate(`/projects/${projectId}`);
+          }, 500);
         } else {
-          showToast('error', 'Failed to save project');
+          const data = await response.json();
+          if (data.requiresUpgrade) {
+            setShowUpgradeModal(true);
+          } else {
+            showToast('error', data.error || 'Failed to save project');
+          }
         }
       } else {
         // Create new project if auto-save failed
@@ -351,15 +373,21 @@ export default function GeneratePage() {
         
         if (response.ok) {
           showToast('success', 'Project saved successfully!');
-          navigate(`/projects/${result.project.id}`);
+          setIsTransitioning(true);
+          // Small delay to show the transition loading
+          setTimeout(() => {
+            navigate(`/projects/${result.project.id}`);
+          }, 500);
         } else if (result.requiresUpgrade) {
-          showToast('error', 'Project limit reached. Please upgrade to save more projects.');
+          setShowUpgradeModal(true);
         } else {
           showToast('error', result.error || 'Failed to save project');
         }
       }
     } catch (error) {
       showToast('error', 'Failed to save project');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -393,9 +421,9 @@ export default function GeneratePage() {
 
   if (!swipeConfig) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 
@@ -444,6 +472,7 @@ export default function GeneratePage() {
             isPublished={isPublished}
             onPublish={handlePublishProject}
             showGenerationLimitBanner={hitGenerationLimit}
+            saving={saving}
           />
         )}
 
@@ -457,6 +486,26 @@ export default function GeneratePage() {
             totalDuration={60}
           />
         )}
+        
+        {/* Page Transition Loading */}
+        {isTransitioning && (
+          <UniversalLoading 
+            minimal={true}
+          />
+        )}
+        
+        {/* Upgrade Modal for project save */}
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => {
+            setShowUpgradeModal(false);
+          }}
+          onUpgrade={() => {
+            setShowUpgradeModal(false);
+            navigate('/pricing');
+          }}
+          type="project-save"
+        />
       </div>
     </DashboardLayout>
   );

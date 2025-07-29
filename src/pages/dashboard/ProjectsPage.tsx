@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "../../components/dashboard/DashboardLayout";
 import { Plus, Eye, Edit, Trash2, ExternalLink } from "lucide-react";
@@ -11,8 +12,14 @@ import { Link } from "react-router-dom";
 import { apiEndpoints, getAuthHeaders } from "../../lib/api/client";
 import { useProfile } from "../../hooks/useProfile";
 import { UpgradeBanner } from "../../components/dashboard/UpgradeBanner";
+import { UniversalLoading } from "../../components/ui/UniversalLoading";
 
 export default function ProjectsPage() {
+  usePageTitle({
+    title: 'Projects',
+    description: 'Manage your landing page projects, create new ones, or edit existing designs.'
+  });
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBanner, setShowBanner] = useState(true);
@@ -71,11 +78,9 @@ export default function ProjectsPage() {
 
   if (loading || profileLoading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

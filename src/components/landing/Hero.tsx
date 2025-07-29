@@ -132,7 +132,7 @@ export function Hero() {
         </div>
       </section>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade-in-up {
           from {
             opacity: 0;
@@ -150,6 +150,7 @@ export function Hero() {
           }
           to {
             opacity: 1;
+            transform: translateY(0);
           }
         }
 
