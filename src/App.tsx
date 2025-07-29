@@ -10,6 +10,7 @@ import { Providers } from "./components/providers/Providers";
 // Landing Page Components
 import { Header } from "./components/landing/Header";
 import { Hero } from "./components/landing/Hero";
+import { DemoVideo } from "./components/landing/DemoVideo";
 import { Features } from "./components/landing/Features";
 import { Showcase } from "./components/landing/Showcase";
 import { HowItWorks } from "./components/landing/HowItWorks";
@@ -49,6 +50,12 @@ function LandingPage() {
       ogTitle.setAttribute('content', 'SandPix - Generate Landing Pages with AI - Get Started Free');
     }
     
+    // Update Open Graph image for TOP page (home-specific image)
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) {
+      ogImage.setAttribute('content', '/images/og-image-home.png');
+    }
+    
     // Update Twitter title for TOP page
     const twitterTitle = document.querySelector('meta[name="twitter:title"]');
     if (twitterTitle) {
@@ -61,6 +68,7 @@ function LandingPage() {
       <Header />
       <main>
         <Hero />
+        <DemoVideo />
         <Showcase />
         <HowItWorks />
         <CTA />

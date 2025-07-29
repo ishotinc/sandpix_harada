@@ -25,6 +25,25 @@ interface ShowcaseItem {
   };
 }
 
+// Helper function to determine category from highest scores
+function getCategoryFromScores(scores: any): string {
+  const scoreEntries = [
+    ['Friendly', scores.friendly_score],
+    ['Professional', scores.professional_score],
+    ['Creative', scores.creative_score],
+    ['Minimal', scores.minimal_score],
+    ['Energetic', scores.energetic_score],
+    ['Trustworthy', scores.trustworthy_score],
+    ['Luxurious', scores.luxurious_score]
+  ];
+  
+  const highestScore = scoreEntries.reduce((prev, current) => 
+    current[1] > prev[1] ? current : prev
+  );
+  
+  return highestScore[0] as string;
+}
+
 export function Showcase() {
   const [showcaseItems, setShowcaseItems] = useState<ShowcaseItem[]>([]);
 
@@ -34,105 +53,30 @@ export function Showcase() {
         const response = await fetch('/swipe-config.json');
         const config = await response.json();
         
-        // Curated landing page examples from swipe images
-        const items: ShowcaseItem[] = [
-          {
-            id: 1,
-            title: "Energetic & Friendly Landing",
-            description: "Warm, welcoming design with vibrant energy and approachable messaging",
-            path: config.images[0]?.path || "/images/swipe-1.jpg",
-            category: "Friendly",
+        // Convert swipe-config.json data to showcase items
+        const items: ShowcaseItem[] = config.images
+          .filter((item: any) => item.id <= 9) // Show first 9 examples
+          .map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            path: item.path,
+            category: getCategoryFromScores(item.scores),
             tags: {
-              warm: 9, cool: 2, mono: 1, vivid: 4,
-              friendly: 10, professional: 3, creative: 6, minimal: 7,
-              energetic: 5, trustworthy: 8, luxurious: 2, approachable: 10
+              warm: item.scores.warm_score,
+              cool: item.scores.cool_score,
+              mono: item.scores.mono_score,
+              vivid: item.scores.vivid_score,
+              friendly: item.scores.friendly_score,
+              professional: item.scores.professional_score,
+              creative: item.scores.creative_score,
+              minimal: item.scores.minimal_score,
+              energetic: item.scores.energetic_score,
+              trustworthy: item.scores.trustworthy_score,
+              luxurious: item.scores.luxurious_score,
+              approachable: item.scores.approachable_score
             }
-          },
-          {
-            id: 2,
-            title: "Traditional & Trustworthy",
-            description: "Classic corporate design that builds trust and professional credibility",
-            path: config.images[1]?.path || "/images/swipe-2.jpg",
-            category: "Professional",
-            tags: {
-              warm: 2, cool: 1, mono: 8, vivid: 0,
-              friendly: 1, professional: 10, creative: 2, minimal: 9,
-              energetic: 0, trustworthy: 10, luxurious: 10, approachable: 1
-            }
-          },
-          {
-            id: 3,
-            title: "Colorful & Innovative",
-            description: "Bold, creative design with vibrant colors and innovative layouts",
-            path: config.images[2]?.path || "/images/swipe-3.jpg",
-            category: "Creative",
-            tags: {
-              warm: 9, cool: 9, mono: 0, vivid: 10,
-              friendly: 0, professional: 10, creative: 3, minimal: 8,
-              energetic: 0, trustworthy: 10, luxurious: 8, approachable: 2
-            }
-          },
-          {
-            id: 5,
-            title: "Pop & Bright Design",
-            description: "Playful, energetic design with bright colors and cheerful atmosphere",
-            path: config.images[4]?.path || "/images/swipe-5.jpg",
-            category: "Energetic",
-            tags: {
-              warm: 10, cool: 2, mono: 3, vivid: 7,
-              friendly: 10, professional: 7, creative: 9, minimal: 5,
-              energetic: 7, trustworthy: 9, luxurious: 1, approachable: 10
-            }
-          },
-          {
-            id: 6,
-            title: "Facebook-style Blue Theme",
-            description: "Clean, trustworthy blue design inspired by social media platforms",
-            path: config.images[5]?.path || "/images/swipe-6.jpg",
-            category: "Trust",
-            tags: {
-              warm: 0, cool: 10, mono: 2, vivid: 6,
-              friendly: 2, professional: 10, creative: 7, minimal: 6,
-              energetic: 4, trustworthy: 10, luxurious: 3, approachable: 5
-            }
-          },
-          {
-            id: 8,
-            title: "Game-style Vivid Colors",
-            description: "Dynamic gaming-inspired design with bold colors and engaging elements",
-            path: config.images[7]?.path || "/images/swipe-8.jpg",
-            category: "Gaming",
-            tags: {
-              warm: 2, cool: 3, mono: 9, vivid: 8,
-              friendly: 7, professional: 8, creative: 8, minimal: 6,
-              energetic: 8, trustworthy: 8, luxurious: 2, approachable: 9
-            }
-          },
-          {
-            id: 9,
-            title: "Notion-style Simple Design",
-            description: "Clean, minimal design inspired by modern productivity tools",
-            path: config.images[8]?.path || "/images/swipe-9.jpg",
-            category: "Minimal",
-            tags: {
-              warm: 3, cool: 2, mono: 10, vivid: 10,
-              friendly: 5, professional: 6, creative: 10, minimal: 3,
-              energetic: 10, trustworthy: 6, luxurious: 1, approachable: 7
-            }
-          },
-          {
-            id: 11,
-            title: "Four Seasons Spa Style",
-            description: "Elegant, sophisticated design with luxury spa-inspired aesthetics",
-            path: config.images[10]?.path || "/images/swipe-11.jpg",
-            category: "Luxury",
-            tags: {
-              warm: 8, cool: 2, mono: 9, vivid: 4,
-              friendly: 7, professional: 5, creative: 4, minimal: 2,
-              energetic: 10, trustworthy: 8, luxurious: 1, approachable: 9
-            }
-          }
-        ];
+          }));
         
         setShowcaseItems(items);
       } catch (error) {
@@ -147,9 +91,9 @@ export function Showcase() {
     <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 px-4">
-          <div className="inline-flex items-center px-3 sm:px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+          <div className="inline-flex items-center px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            Real Examples Created with Sandpix
+            Real Examples Created with SandPix
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
@@ -175,19 +119,25 @@ export function Showcase() {
               <div className="relative overflow-hidden">
                 <img
                   src={item.path}
-                  alt={item.title}
-                  className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                  alt={`${item.title} - SandPix AI Generated Landing Page`}
+                  className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
                 {/* Category Badge */}
                 <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
-                  <span className="px-2 sm:px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-800 text-xs sm:text-sm font-medium rounded-full">
+                  <span className="px-2 sm:px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs sm:text-sm font-medium rounded-full shadow-lg">
                     {item.category}
                   </span>
                 </div>
                 
+                {/* AI Generated Badge */}
+                <div className="absolute top-2 sm:top-4 right-2 sm:right-4">
+                  <span className="px-2 py-1 bg-green-600 text-white text-xs font-medium rounded-full shadow-lg">
+                    AI Generated
+                  </span>
+                </div>
               </div>
 
               {/* Content */}
@@ -199,35 +149,9 @@ export function Showcase() {
                   {item.description}
                 </p>
                 
-                {/* Score Tags */}
-                <div className="space-y-2 sm:space-y-3">
-                  {/* Top 3 Scores */}
-                  <div className="flex flex-wrap gap-1 sm:gap-2">
-                    {Object.entries(item.tags)
-                      .sort(([,a], [,b]) => b - a)
-                      .slice(0, 3)
-                      .map(([key, value]) => {
-                        const colorClass = value >= 8 ? 'bg-green-100 text-green-800' : 
-                                          value >= 6 ? 'bg-blue-100 text-blue-800' : 
-                                          'bg-gray-100 text-gray-800';
-                        const displayName = {
-                          warm: 'Warm', cool: 'Cool', mono: 'Mono', vivid: 'Vivid',
-                          friendly: 'Friendly', professional: 'Professional', creative: 'Creative', minimal: 'Minimal',
-                          energetic: 'Energetic', trustworthy: 'Trustworthy', luxurious: 'Luxurious', approachable: 'Approachable'
-                        }[key] || key;
-                        
-                        return (
-                          <span key={key} className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${colorClass}`}>
-                            {displayName} {value}
-                          </span>
-                        );
-                      })}
-                  </div>
-                  
-                  {/* Style Preview */}
-                  <div className="text-[10px] sm:text-xs text-gray-500 bg-gray-50 p-1.5 sm:p-2 rounded">
-                    AI-generated design style
-                  </div>
+                {/* Style Preview */}
+                <div className="text-[10px] sm:text-xs text-gray-500 bg-gradient-to-r from-gray-50 to-blue-50 p-1.5 sm:p-2 rounded border border-gray-100">
+                  ✨ Generated with SandPix AI
                 </div>
               </div>
             </div>

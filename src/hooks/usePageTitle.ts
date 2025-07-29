@@ -35,6 +35,17 @@ export function usePageTitle({ title, description }: UsePageTitleOptions) {
       }
     }
     
+    // Update Open Graph image based on page
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) {
+      // Use home-specific OG image for TOP page
+      if (title === 'SandPix - Generate Landing Pages with AI - Get Started Free') {
+        ogImage.setAttribute('content', '/images/og-image-home.png');
+      } else {
+        ogImage.setAttribute('content', '/images/og-image.png');
+      }
+    }
+    
     // Update Twitter title
     const twitterTitle = document.querySelector('meta[name="twitter:title"]');
     if (twitterTitle) {
