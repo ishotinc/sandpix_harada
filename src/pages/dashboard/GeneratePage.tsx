@@ -8,6 +8,7 @@ import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
 import { GenerationProgress } from '../../components/ui/GenerationProgress';
 import { PageTransitionLoading } from '../../components/ui/PageTransitionLoading';
+import { ProjectSaveModal } from '../../components/ui/ProjectSaveModal';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
 import { SwipeImage, SwipeScores } from '../../types/project';
 import { calculateSwipeScores } from '../../utils/scoring';
@@ -34,6 +35,7 @@ export default function GeneratePage() {
   const [hitGenerationLimit, setHitGenerationLimit] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showProjectSaveModal, setShowProjectSaveModal] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { id: regenerateId } = useParams<{ id: string }>();
@@ -51,6 +53,10 @@ export default function GeneratePage() {
       }
     }
   }, [regenerateId]);
+
+  useEffect(() => {
+    console.log('showProjectSaveModal changed:', showProjectSaveModal);
+  }, [showProjectSaveModal]);
 
   const loadProjectForRegeneration = async () => {
     try {
@@ -319,6 +325,7 @@ export default function GeneratePage() {
   const handleSaveProject = async () => {
     if (!projectData || !generatedHtml) return;
 
+    console.log('Starting save project process...', { projectId, projectData });
     setSaving(true);
     try {
       const headers = await getAuthHeaders();
@@ -345,7 +352,14 @@ export default function GeneratePage() {
             navigate(`/projects/${projectId}`);
           }, 500);
         } else {
-          showToast('error', 'Failed to save project');
+          const data = await response.json();
+          console.log('Save failed response:', { status: response.status, data });
+          if (data.requiresUpgrade) {
+            console.log('Setting showProjectSaveModal to true');
+            setShowProjectSaveModal(true);
+          } else {
+            showToast('error', data.error || 'Failed to save project');
+          }
         }
       } else {
         // Create new project if auto-save failed
@@ -365,7 +379,8 @@ export default function GeneratePage() {
             navigate(`/projects/${result.project.id}`);
           }, 500);
         } else if (result.requiresUpgrade) {
-          showToast('error', 'Project limit reached. Please upgrade to save more projects.');
+          console.log('New project creation failed - setting showProjectSaveModal to true');
+          setShowProjectSaveModal(true);
         } else {
           showToast('error', result.error || 'Failed to save project');
         }
@@ -480,6 +495,20 @@ export default function GeneratePage() {
             subtitle="Setting up your project editing interface..."
           />
         )}
+        
+        {/* Project Save Modal for upgrade */}
+        <ProjectSaveModal
+          isOpen={showProjectSaveModal}
+          onClose={() => {
+            console.log('ProjectSaveModal closed');
+            setShowProjectSaveModal(false);
+          }}
+          onUpgrade={() => {
+            console.log('ProjectSaveModal upgrade clicked');
+            setShowProjectSaveModal(false);
+            navigate('/pricing');
+          }}
+        />
       </div>
     </DashboardLayout>
   );
