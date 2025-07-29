@@ -86,13 +86,16 @@ export function UsageCounter({ refreshTrigger }: { refreshTrigger?: number }) {
   const isNearLimit = usage.remaining <= 3 && usage.remaining > 0;
   const isAtLimit = usage.remaining === 0;
   
-  // Calculate time until reset
-  const getTimeUntilReset = (resetTime?: string | null) => {
-    if (!resetTime) return '24 hours';
-    const reset = new Date(resetTime);
+  // Calculate time until reset (next UTC midnight)
+  const getTimeUntilReset = () => {
     const now = new Date();
-    const nextReset = new Date(reset.getTime() + 24 * 60 * 60 * 1000);
-    const diff = nextReset.getTime() - now.getTime();
+    const tomorrow = new Date(now);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0); // Next UTC midnight
+    
+    const diff = tomorrow.getTime() - now.getTime();
+    if (diff <= 0) return '0h 0m'; // Already past reset time
+    
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours}h ${minutes}m`;
@@ -130,7 +133,7 @@ export function UsageCounter({ refreshTrigger }: { refreshTrigger?: number }) {
       )}
       {isAtLimit && (
         <p className="text-xs text-red-600 mt-2">
-          Daily limit reached. Resets in {getTimeUntilReset(usage.resetTime)}
+          Daily limit reached. Resets in {getTimeUntilReset()}
         </p>
       )}
       {planType === 'plus' && profile.daily_project_count !== undefined && (

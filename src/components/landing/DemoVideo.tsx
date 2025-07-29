@@ -66,7 +66,7 @@ export function DemoVideo() {
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                 >
-                  <source src="/videos/demo-video.webm" type="video/webm" />
+                  <source src="/videos/demo-video.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
