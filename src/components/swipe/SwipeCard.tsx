@@ -59,7 +59,7 @@ export function SwipeCard({ image, onSwipe, isAnimating, isPreloaded = false }: 
         }}
       >
         {/* Image */}
-        <div className="aspect-[3/2] overflow-hidden relative">
+        <div className="aspect-[4/3] overflow-hidden relative">
           <img
             src={image.path}
             alt={image.title}
@@ -74,8 +74,8 @@ export function SwipeCard({ image, onSwipe, isAnimating, isPreloaded = false }: 
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          <h3 className="text-lg font-bold text-gray-900 text-center">
+        <div className="p-3">
+          <h3 className="text-base font-bold text-gray-900 text-center">
             {image.title}
           </h3>
         </div>

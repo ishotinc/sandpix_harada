@@ -121,7 +121,7 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
       </div>
 
       {/* Swipe Card */}
-      <div className="relative mb-6 h-[320px]">
+      <div className="relative mb-8 h-[400px] overflow-hidden">
         <AnimatePresence mode="wait">
           {currentImage && (
             <motion.div
@@ -151,7 +151,7 @@ export function SwipeContainer({ images, onComplete }: SwipeContainerProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-center space-x-4 mb-4">
+      <div className="flex items-center justify-center space-x-4 mb-6">
         <Button
           variant="outline"
           size="lg"
