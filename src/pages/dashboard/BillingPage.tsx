@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { UniversalLoading } from '@/components/ui/UniversalLoading';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { PLAN_LIMITS } from '@/lib/constants/plans';
 import { createCheckoutSession, getUserSubscription } from '@/lib/stripe/client';
@@ -99,11 +100,9 @@ export default function BillingPage() {
 
   if (!userData) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

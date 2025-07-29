@@ -7,7 +7,7 @@ import { SwipeContainer } from '../../components/swipe/SwipeContainer';
 import { BasicInfoModal } from '../../components/swipe/BasicInfoModal';
 import { GeneratePreview } from '../../components/generate/GeneratePreview';
 import { GenerationProgress } from '../../components/ui/GenerationProgress';
-import { PageTransitionLoading } from '../../components/ui/PageTransitionLoading';
+import { UniversalLoading } from '../../components/ui/UniversalLoading';
 import { ProjectSaveModal } from '../../components/ui/ProjectSaveModal';
 import { UsageCounter } from '../../components/dashboard/UsageCounter';
 import { SwipeImage, SwipeScores } from '../../types/project';
@@ -422,9 +422,9 @@ export default function GeneratePage() {
 
   if (!swipeConfig) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 
@@ -490,9 +490,8 @@ export default function GeneratePage() {
         
         {/* Page Transition Loading */}
         {isTransitioning && (
-          <PageTransitionLoading 
-            title="Redirecting to Editor"
-            subtitle="Setting up your project editing interface..."
+          <UniversalLoading 
+            minimal={true}
           />
         )}
         

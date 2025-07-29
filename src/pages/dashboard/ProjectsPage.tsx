@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { apiEndpoints, getAuthHeaders } from "../../lib/api/client";
 import { useProfile } from "../../hooks/useProfile";
 import { UpgradeBanner } from "../../components/dashboard/UpgradeBanner";
+import { UniversalLoading } from "../../components/ui/UniversalLoading";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -71,11 +72,9 @@ export default function ProjectsPage() {
 
   if (loading || profileLoading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

@@ -5,6 +5,7 @@ import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useToast } from '../../components/ui/ToastProvider';
+import { UniversalLoading } from '../../components/ui/UniversalLoading';
 import { Profile } from '../../types/profile';
 import { User, Building, Award, Mail, ArrowLeft } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
@@ -90,9 +91,9 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 

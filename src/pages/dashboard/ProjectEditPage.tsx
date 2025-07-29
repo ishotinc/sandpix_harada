@@ -10,6 +10,7 @@ import { Project } from '../../types/project';
 import { Save, RefreshCw, Eye, Code, ExternalLink, Globe, ArrowLeft, Copy, Check } from 'lucide-react';
 import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
 import { BillingModal } from '../../components/ui/BillingModal';
+import { UniversalLoading } from '../../components/ui/UniversalLoading';
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -206,9 +207,9 @@ export default function ProjectEditPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <UniversalLoading 
+        minimal={true}
+      />
     );
   }
 
