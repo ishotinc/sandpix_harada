@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { Check, Sparkles, Crown, Zap, Star, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 import { createCheckoutSession } from '@/lib/stripe/client';
@@ -14,6 +15,11 @@ export default function PricingPage() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
+
+  usePageTitle({
+    title: 'Pricing',
+    description: 'Choose the perfect plan for your landing page needs. Start free or upgrade to Plus for advanced features and unlimited projects.'
+  });
 
   useEffect(() => {
     const checkUser = async () => {

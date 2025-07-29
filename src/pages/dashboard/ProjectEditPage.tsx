@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { Button } from '../../components/ui/Button';
@@ -14,6 +15,11 @@ import { UniversalLoading } from '../../components/ui/UniversalLoading';
 
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
+  
+  usePageTitle({
+    title: 'Edit Project',
+    description: 'Edit your landing page project settings, preview changes, and publish when ready.'
+  });
   const navigate = useNavigate();
   const { showToast } = useToast();
   

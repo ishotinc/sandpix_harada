@@ -1,12 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Home } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { UniversalLoading } from '@/components/ui/UniversalLoading';
 
 export default function SuccessPage() {
+  usePageTitle({
+    title: 'Payment Success',
+    description: 'Thank you for upgrading to SandPix Plus! Your subscription is now active.'
+  });
+
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "../../components/dashboard/DashboardLayout";
 import { Plus, Eye, Edit, Trash2, ExternalLink } from "lucide-react";
@@ -14,6 +15,11 @@ import { UpgradeBanner } from "../../components/dashboard/UpgradeBanner";
 import { UniversalLoading } from "../../components/ui/UniversalLoading";
 
 export default function ProjectsPage() {
+  usePageTitle({
+    title: 'Projects',
+    description: 'Manage your landing page projects, create new ones, or edit existing designs.'
+  });
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBanner, setShowBanner] = useState(true);

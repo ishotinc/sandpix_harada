@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { SwipeContainer } from '../../components/swipe/SwipeContainer';
@@ -20,6 +21,11 @@ import { ProjectGenerationData, SwipeResult } from '../../types/generation';
 import { ArrowLeft } from 'lucide-react';
 
 export default function GeneratePage() {
+  usePageTitle({
+    title: 'Generate',
+    description: 'Create your landing page by swiping through design styles and customizing your content.'
+  });
+
   const [swipeConfig, setSwipeConfig] = useState<{ images: SwipeImage[] } | null>(null);
   const [currentStep, setCurrentStep] = useState<'swipe' | 'info' | 'preview'>('swipe');
   const [swipeResults, setSwipeResults] = useState<SwipeResult[]>([]);

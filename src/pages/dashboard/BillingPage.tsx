@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
@@ -15,6 +16,11 @@ interface UserData {
 }
 
 export default function BillingPage() {
+  usePageTitle({
+    title: 'Billing',
+    description: 'Manage your subscription, view billing history, and update payment methods.'
+  });
+
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);

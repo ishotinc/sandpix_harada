@@ -39,6 +39,23 @@ import SuccessPage from "./pages/SuccessPage";
 
 // Landing Page Component
 function LandingPage() {
+  React.useEffect(() => {
+    // Update title for TOP page specifically
+    document.title = 'SandPix - Generate Landing Pages with AI - Get Started Free';
+    
+    // Update Open Graph title for TOP page
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'SandPix - Generate Landing Pages with AI - Get Started Free');
+    }
+    
+    // Update Twitter title for TOP page
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) {
+      twitterTitle.setAttribute('content', 'SandPix - Generate Landing Pages with AI - Get Started Free');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />

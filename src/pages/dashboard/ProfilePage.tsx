@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { DashboardLayout } from '../../components/dashboard/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -12,6 +13,11 @@ import { apiEndpoints, getAuthHeaders } from '../../lib/api/client';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
+  usePageTitle({
+    title: 'Profile',
+    description: 'Manage your account settings, personal information, and preferences.'
+  });
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
