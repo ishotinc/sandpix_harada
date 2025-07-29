@@ -7,16 +7,31 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  // Reset users whose last reset was > 24 hours ago
-  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  // Get current UTC date for standard daily reset at midnight UTC
+  const now = new Date()
+  const todayUTC = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const todayUTCString = todayUTC.toISOString().split('T')[0] // YYYY-MM-DD format
   
+  // Reset all users' daily count and set reset date to today UTC
+  // This ensures consistent daily reset timing regardless of when the function runs
   const { error } = await supabase
     .from('profiles')
     .update({ 
       daily_generation_count: 0,
-      daily_generation_reset_at: new Date().toISOString()
+      daily_generation_reset_at: todayUTCString
     })
-    .or(`daily_generation_reset_at.is.null,daily_generation_reset_at.lt.${twentyFourHoursAgo}`)
+    .neq('daily_generation_reset_at', todayUTCString) // Only update if not already reset today
 
-  return new Response(JSON.stringify({ success: !error, error }))
+  const { count } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .neq('daily_generation_reset_at', todayUTCString)
+
+  return new Response(JSON.stringify({ 
+    success: !error, 
+    error,
+    resetDate: todayUTCString,
+    usersReset: count || 0,
+    timestamp: now.toISOString()
+  }))
 })
